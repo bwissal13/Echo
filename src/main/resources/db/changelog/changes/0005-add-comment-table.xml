@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="1" author="author">
+        <createTable tableName="comments">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="content" type="TEXT"/>
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date" type="TIMESTAMP"/>
+            <column name="book_id" type="BIGINT"/>
+            <column name="chapter_id" type="BIGINT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableName="comments"
+                                 baseColumnNames="user_id"
+                                 constraintName="fk_comments_user"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="comments"
+                                 baseColumnNames="book_id"
+                                 constraintName="fk_comments_book"
+                                 referencedTableName="books"
+                                 referencedColumnNames="id"/>
+        <addForeignKeyConstraint baseTableName="comments"
+                                 baseColumnNames="chapter_id"
+                                 constraintName="fk_comments_chapter"
+                                 referencedTableName="chapters"
+                                 referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog> 
