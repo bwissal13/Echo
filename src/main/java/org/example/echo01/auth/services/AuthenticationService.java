@@ -27,6 +27,12 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final OTPService otpService;
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException("User not found"));
+    }
 
     @Transactional
     public AuthenticationResponse register(RegisterRequest request) {
@@ -50,24 +56,31 @@ public class AuthenticationService {
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(savedUser, accessToken);
         
+        // Generate and send OTP
+        otpService.generateAndSendOTP(savedUser);
+        
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .message("User registered successfully")
+                .message("User registered successfully. Please check your email for OTP verification.")
                 .success(true)
                 .build();
     }
 
     public AuthenticationResponse login(LoginRequest request) {
+        var user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException("User not found"));
+        
+        if (!user.isEnabled()) {
+            throw new org.springframework.security.authentication.DisabledException("Account is not verified. Please verify your email with the OTP sent during registration.");
+        }
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
-        
-        var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new CustomException("User not found"));
         
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);

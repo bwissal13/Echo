@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,13 +29,16 @@ public class User implements UserDetails {
     private String password;
     private String bio;
 
+    @Column(length = 1000)
+    private String profilePicture;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private String profilePicture;
-
-    @Builder.Default
-    private boolean enabled = true;
+    private boolean enabled = false;
+    private boolean emailVerified = false;
+    private String emailVerificationToken;
+    private LocalDateTime emailVerificationTokenExpiry;
 
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
@@ -47,6 +51,11 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
     }
 
     @Override
@@ -66,6 +75,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return enabled;
+        return enabled && emailVerified;
     }
 } 
