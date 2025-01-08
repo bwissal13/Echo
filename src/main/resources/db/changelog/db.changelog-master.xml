@@ -3,7 +3,7 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
-                          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+                          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
 
     <include file="db/changelog/changes/0001-initial-schema.xml"/>
     <include file="db/changelog/changes/0002-add-email-verification.xml"/>
@@ -12,5 +12,9 @@
     <include file="db/changelog/changes/0005-add-comment-table.xml"/>
     <include file="db/changelog/changes/0006-add-notification-table.xml"/>
     <include file="db/changelog/changes/0007-add-role-change-requests.xml"/>
+    <include file="db/changelog/changes/0008-add-refresh-token-table.xml"/>
+    <include file="db/changelog/changes/0009-standardize-audit-columns.xml"/>
+    <include file="db/changelog/changes/0010-update-refresh-token-table.xml"/>
+    <include file="db/changelog/changes/0011-add-updated-at-to-role-change-requests.xml"/>
 
 </databaseChangeLog> 
