@@ -1,6 +1,7 @@
 package org.example.echo01.auth.repositories;
 
 import org.example.echo01.auth.entities.Token;
+import org.example.echo01.auth.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -15,4 +16,6 @@ public interface TokenRepository extends JpaRepository<Token, Long> {
     List<Token> findAllValidTokenByUser(Long userId);
 
     Optional<Token> findByToken(String token);
+    
+    void deleteAllByUser(User user);
 } 
