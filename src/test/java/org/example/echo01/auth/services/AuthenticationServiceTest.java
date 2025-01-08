@@ -1,5 +1,7 @@
 package org.example.echo01.auth.services;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.example.echo01.auth.dto.request.LoginRequest;
 import org.example.echo01.auth.dto.request.RegisterRequest;
 import org.example.echo01.auth.dto.response.AuthenticationResponse;
@@ -14,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,12 +47,20 @@ class AuthenticationServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
+    @Mock
+    private OTPService otpService;
+
+    @Mock
+    private RefreshTokenService refreshTokenService;
+
     @InjectMocks
     private AuthenticationService authenticationService;
 
     private RegisterRequest registerRequest;
     private LoginRequest loginRequest;
     private User user;
+    private HttpServletRequest httpRequest;
+    private HttpServletResponse httpResponse;
 
     @BeforeEach
     void setUp() {
@@ -75,6 +87,9 @@ class AuthenticationServiceTest {
                 .role(Role.USER)
                 .enabled(true)
                 .build();
+
+        httpRequest = new MockHttpServletRequest();
+        httpResponse = new MockHttpServletResponse();
     }
 
     @Test
@@ -83,21 +98,22 @@ class AuthenticationServiceTest {
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(jwtService.generateToken(any(User.class))).thenReturn("jwtToken");
-        when(jwtService.generateRefreshToken(any(User.class))).thenReturn("refreshToken");
-        when(tokenRepository.save(any())).thenReturn(null);
+        doNothing().when(refreshTokenService).createAndSetRefreshToken(any(), any(), any());
+        doNothing().when(otpService).generateAndSendOTP(any());
 
-        AuthenticationResponse response = authenticationService.register(registerRequest);
+        AuthenticationResponse response = authenticationService.register(registerRequest, httpResponse, httpRequest);
 
         assertNotNull(response);
         assertEquals("jwtToken", response.getAccessToken());
-        assertEquals("refreshToken", response.getRefreshToken());
+        assertTrue(response.isSuccess());
+        assertTrue(response.getMessage().contains("Please check your email for OTP verification"));
 
         verify(userRepository).existsByEmail(registerRequest.getEmail());
         verify(passwordEncoder).encode(registerRequest.getPassword());
         verify(userRepository).save(any(User.class));
         verify(jwtService).generateToken(any(User.class));
-        verify(jwtService).generateRefreshToken(any(User.class));
-        verify(tokenRepository).save(any());
+        verify(refreshTokenService).createAndSetRefreshToken(any(), any(), any());
+        verify(otpService).generateAndSendOTP(any());
     }
 
     @Test
@@ -105,34 +121,33 @@ class AuthenticationServiceTest {
         when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
         assertThrows(CustomException.class,
-                () -> authenticationService.register(registerRequest));
+                () -> authenticationService.register(registerRequest, httpResponse, httpRequest));
 
         verify(userRepository).existsByEmail(registerRequest.getEmail());
-        verifyNoMoreInteractions(passwordEncoder, jwtService, tokenRepository);
+        verifyNoMoreInteractions(passwordEncoder, jwtService, refreshTokenService, otpService);
     }
 
     @Test
     void login_WithValidCredentials_ShouldSucceed() {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(user));
         when(jwtService.generateToken(any(User.class))).thenReturn("jwtToken");
-        when(jwtService.generateRefreshToken(any(User.class))).thenReturn("refreshToken");
         when(tokenRepository.findAllValidTokenByUser(anyLong())).thenReturn(new ArrayList<>());
-        when(tokenRepository.save(any())).thenReturn(null);
+        doNothing().when(refreshTokenService).createAndSetRefreshToken(any(), any(), any());
 
-        AuthenticationResponse response = authenticationService.login(loginRequest);
+        AuthenticationResponse response = authenticationService.login(loginRequest, httpRequest, httpResponse);
 
         assertNotNull(response);
         assertEquals("jwtToken", response.getAccessToken());
-        assertEquals("refreshToken", response.getRefreshToken());
+        assertTrue(response.isSuccess());
+        assertEquals("Login successful", response.getMessage());
 
         verify(authenticationManager).authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
         verify(userRepository).findByEmail(loginRequest.getEmail());
         verify(jwtService).generateToken(user);
-        verify(jwtService).generateRefreshToken(user);
         verify(tokenRepository).findAllValidTokenByUser(user.getId());
-        verify(tokenRepository).save(any());
+        verify(refreshTokenService).createAndSetRefreshToken(any(), any(), any());
     }
 
     @Test
@@ -140,12 +155,33 @@ class AuthenticationServiceTest {
         when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         assertThrows(CustomException.class,
-                () -> authenticationService.login(loginRequest));
+                () -> authenticationService.login(loginRequest, httpRequest, httpResponse));
 
         verify(authenticationManager).authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())
         );
         verify(userRepository).findByEmail(loginRequest.getEmail());
-        verifyNoMoreInteractions(jwtService, tokenRepository);
+        verifyNoMoreInteractions(jwtService, tokenRepository, refreshTokenService);
+    }
+
+    @Test
+    void login_WithUnverifiedAccount_ShouldThrowException() {
+        User unverifiedUser = User.builder()
+                .id(1L)
+                .firstname("Test")
+                .lastname("User")
+                .email("test@example.com")
+                .password("encodedPassword")
+                .bio("Test bio")
+                .role(Role.USER)
+                .enabled(false)
+                .build();
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(unverifiedUser));
+
+        assertThrows(org.springframework.security.authentication.DisabledException.class,
+                () -> authenticationService.login(loginRequest, httpRequest, httpResponse));
+
+        verify(userRepository).findByEmail(loginRequest.getEmail());
+        verifyNoMoreInteractions(authenticationManager, jwtService, tokenRepository, refreshTokenService);
     }
 } 

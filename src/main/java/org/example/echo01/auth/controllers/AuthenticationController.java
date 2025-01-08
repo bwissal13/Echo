@@ -2,6 +2,7 @@ package org.example.echo01.auth.controllers;
 
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.echo01.auth.dto.request.LoginRequest;
 import org.example.echo01.auth.dto.request.RegisterRequest;
@@ -11,11 +12,9 @@ import org.example.echo01.auth.dto.response.AuthenticationResponse;
 import org.example.echo01.auth.entities.User;
 import org.example.echo01.auth.services.AuthenticationService;
 import org.example.echo01.auth.services.EmailService;
-import org.example.echo01.auth.services.LogoutService;
 import org.example.echo01.auth.services.OTPService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpHeaders;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -23,28 +22,26 @@ import org.springframework.http.HttpHeaders;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
-    private final LogoutService logoutService;
     private final OTPService otpService;
     private final EmailService emailService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request
+            @RequestBody RegisterRequest request,
+            HttpServletRequest httpRequest,
+            HttpServletResponse response
     ) {
-        AuthenticationResponse response = authenticationService.register(request);
-        response.setMessage("User registered successfully. Please verify your email.");
-        response.setSuccess(true);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authenticationService.register(request, response, httpRequest));
     }
 
     @PostMapping("/verify-otp")
     public ResponseEntity<AuthenticationResponse> verifyOTP(
             @RequestBody VerifyOTPRequest request
     ) {
-        boolean isValid = otpService.verifyOTP(request.getEmail(), request.getCode());
+        boolean verified = otpService.verifyOTP(request.getEmail(), request.getOtp());
         return ResponseEntity.ok(AuthenticationResponse.builder()
-                .success(isValid)
-                .message(isValid ? "Email verified successfully" : "Invalid OTP")
+                .success(verified)
+                .message("Email verified successfully")
                 .build());
     }
 
@@ -62,44 +59,30 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(
-            @RequestBody LoginRequest request
+            @RequestBody LoginRequest request,
+            HttpServletRequest httpRequest,
+            HttpServletResponse response
     ) {
-        AuthenticationResponse response = authenticationService.login(request);
-        response.setMessage("Login successful");
-        response.setSuccess(true);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authenticationService.login(request, httpRequest, response));
     }
 
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthenticationResponse> refreshToken(
-            HttpServletRequest request
+            HttpServletRequest request,
+            HttpServletResponse response
     ) {
-        AuthenticationResponse response = authenticationService.refreshToken(request);
-        response.setMessage("Token refreshed successfully");
-        response.setSuccess(true);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(authenticationService.refreshToken(request, response));
     }
 
     @PostMapping("/logout")
     public ResponseEntity<AuthenticationResponse> logout(
-            HttpServletRequest request
+            HttpServletRequest request,
+            HttpServletResponse response
     ) {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.ok(AuthenticationResponse.builder()
-                    .success(false)
-                    .message("No token found")
-                    .build());
-        }
-
-        // Extract the token and revoke it
-        logoutService.logout(request, null, null);
-
+        authenticationService.logout(request, response);
         return ResponseEntity.ok(AuthenticationResponse.builder()
                 .success(true)
                 .message("Logged out successfully")
-                .accessToken(null)
-                .refreshToken(null)
                 .build());
     }
 

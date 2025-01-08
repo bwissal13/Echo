@@ -1,6 +1,8 @@
 package org.example.echo01.auth.services;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.echo01.auth.dto.request.LoginRequest;
 import org.example.echo01.auth.dto.request.RegisterRequest;
@@ -12,12 +14,16 @@ import org.example.echo01.auth.enums.TokenType;
 import org.example.echo01.auth.repositories.TokenRepository;
 import org.example.echo01.auth.repositories.UserRepository;
 import org.example.echo01.common.exceptions.CustomException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +34,10 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final OTPService otpService;
+    private final RefreshTokenService refreshTokenService;
+
+    @Value("${application.security.jwt.refresh-token.cookie-name}")
+    private String refreshTokenCookieName;
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
@@ -35,7 +45,7 @@ public class AuthenticationService {
     }
 
     @Transactional
-    public AuthenticationResponse register(RegisterRequest request) {
+    public AuthenticationResponse register(RegisterRequest request, HttpServletResponse response, HttpServletRequest httpRequest) {
         // Check if email already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new CustomException("Email already exists");
@@ -53,21 +63,25 @@ public class AuthenticationService {
         
         var savedUser = userRepository.save(user);
         var accessToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(savedUser, accessToken);
+        
+        // Generate device ID for refresh token
+        String deviceId = generateDeviceId(httpRequest);
+        
+        // Create and set refresh token in HTTP-only cookie
+        refreshTokenService.createAndSetRefreshToken(savedUser, deviceId, response);
         
         // Generate and send OTP
         otpService.generateAndSendOTP(savedUser);
         
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .message("User registered successfully. Please check your email for OTP verification.")
                 .success(true)
                 .build();
     }
 
-    public AuthenticationResponse login(LoginRequest request) {
+    public AuthenticationResponse login(LoginRequest request, HttpServletRequest httpRequest, HttpServletResponse response) {
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new CustomException("User not found"));
         
@@ -83,13 +97,17 @@ public class AuthenticationService {
         );
         
         var accessToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, accessToken);
         
+        // Generate device ID from user agent or other request properties
+        String deviceId = generateDeviceId(httpRequest);
+        
+        // Create and set refresh token in HTTP-only cookie
+        refreshTokenService.createAndSetRefreshToken(user, deviceId, response);
+        
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
-                .refreshToken(refreshToken)
                 .message("Login successful")
                 .success(true)
                 .build();
@@ -119,36 +137,86 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
-    public AuthenticationResponse refreshToken(HttpServletRequest request) {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
-        final String userEmail;
-        
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new CustomException("Refresh token is missing");
+    @Transactional
+    public AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        // Extract refresh token from cookie
+        String refreshToken = refreshTokenService.extractRefreshTokenFromCookie(request);
+        if (refreshToken == null) {
+            throw new CustomException("Refresh token not found in cookie");
         }
-        
-        refreshToken = authHeader.substring(7);
-        userEmail = jwtService.extractUsername(refreshToken);
-        
-        if (userEmail != null) {
-            var user = userRepository.findByEmail(userEmail)
-                    .orElseThrow(() -> new CustomException("User not found"));
-                    
-            if (jwtService.isTokenValid(refreshToken, user)) {
-                var accessToken = jwtService.generateToken(user);
-                revokeAllUserTokens(user);
-                saveUserToken(user, accessToken);
-                
-                return AuthenticationResponse.builder()
-                        .accessToken(accessToken)
-                        .refreshToken(refreshToken)
-                        .message("Token refreshed successfully")
-                        .success(true)
-                        .build();
-            }
+
+        // Get current user
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        var user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new CustomException("User not found"));
+
+        // Generate device ID
+        String deviceId = generateDeviceId(request);
+
+        try {
+            // Rotate refresh token and get new one
+            refreshTokenService.rotateRefreshToken(refreshToken, user, deviceId, response);
+
+            // Generate new access token
+            String newAccessToken = jwtService.generateToken(user);
+            revokeAllUserTokens(user);
+            saveUserToken(user, newAccessToken);
+
+            return AuthenticationResponse.builder()
+                    .accessToken(newAccessToken)
+                    .message("Token refreshed successfully")
+                    .success(true)
+                    .build();
+        } catch (CustomException e) {
+            // If refresh token is invalid, force re-login
+            throw new CustomException("Invalid refresh token. Please login again");
         }
-        
-        throw new CustomException("Invalid refresh token");
+    }
+
+    private String generateDeviceId(HttpServletRequest request) {
+        // Generate a unique device identifier based on request properties
+        String userAgent = request.getHeader("User-Agent");
+        String ipAddress = request.getRemoteAddr();
+        return UUID.nameUUIDFromBytes((userAgent + ipAddress).getBytes()).toString();
+    }
+
+    @Transactional
+    public void logout(HttpServletRequest request, HttpServletResponse response) {
+        // Get refresh token from cookie
+        String refreshToken = refreshTokenService.extractRefreshTokenFromCookie(request);
+        if (refreshToken != null) {
+            // Revoke refresh token
+            refreshTokenService.revokeRefreshToken(refreshToken);
+        }
+
+        // Get access token and revoke it
+        String accessToken = extractAccessToken(request);
+        if (accessToken != null) {
+            var token = tokenRepository.findByToken(accessToken);
+            token.ifPresent(t -> {
+                t.setExpired(true);
+                t.setRevoked(true);
+                tokenRepository.save(t);
+            });
+        }
+
+        // Clear refresh token cookie
+        Cookie cookie = new Cookie(refreshTokenCookieName, "");
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        response.addCookie(cookie);
+
+        // Clear security context
+        SecurityContextHolder.clearContext();
+    }
+
+    private String extractAccessToken(HttpServletRequest request) {
+        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return null;
     }
 } 

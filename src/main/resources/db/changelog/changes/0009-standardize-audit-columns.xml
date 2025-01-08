@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="0009-1" author="bwissal">
+        <!-- Add audit columns to refresh_tokens -->
+        <addColumn tableName="refresh_tokens">
+            <column name="modified_by" type="VARCHAR(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="modified_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="0009-2" author="bwissal">
+        <!-- Rename audit columns in tokens table -->
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="tokens" columnName="updated_at"/>
+        </preConditions>
+        <renameColumn tableName="tokens" 
+                     oldColumnName="updated_at" 
+                     newColumnName="modified_at" 
+                     columnDataType="TIMESTAMP"/>
+    </changeSet>
+
+    <changeSet id="0009-3" author="bwissal">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="tokens" columnName="updated_by"/>
+        </preConditions>
+        <renameColumn tableName="tokens" 
+                     oldColumnName="updated_by" 
+                     newColumnName="modified_by" 
+                     columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <changeSet id="0009-4" author="bwissal">
+        <!-- Rename audit columns in users table -->
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="users" columnName="updated_at"/>
+        </preConditions>
+        <renameColumn tableName="users" 
+                     oldColumnName="updated_at" 
+                     newColumnName="modified_at" 
+                     columnDataType="TIMESTAMP"/>
+    </changeSet>
+
+    <changeSet id="0009-5" author="bwissal">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="users" columnName="updated_by"/>
+        </preConditions>
+        <renameColumn tableName="users" 
+                     oldColumnName="updated_by" 
+                     newColumnName="modified_by" 
+                     columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <changeSet id="0009-6" author="bwissal">
+        <!-- Rename audit columns in role_change_requests table -->
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="role_change_requests" columnName="updated_at"/>
+        </preConditions>
+        <renameColumn tableName="role_change_requests" 
+                     oldColumnName="updated_at" 
+                     newColumnName="modified_at" 
+                     columnDataType="TIMESTAMP"/>
+    </changeSet>
+
+    <changeSet id="0009-7" author="bwissal">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="role_change_requests" columnName="updated_by"/>
+        </preConditions>
+        <renameColumn tableName="role_change_requests" 
+                     oldColumnName="updated_by" 
+                     newColumnName="modified_by" 
+                     columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <changeSet id="0009-8" author="bwissal">
+        <!-- Rename audit columns in books table -->
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="books" columnName="updated_at"/>
+        </preConditions>
+        <renameColumn tableName="books" 
+                     oldColumnName="updated_at" 
+                     newColumnName="modified_at" 
+                     columnDataType="TIMESTAMP"/>
+    </changeSet>
+
+    <changeSet id="0009-9" author="bwissal">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="books" columnName="updated_by"/>
+        </preConditions>
+        <renameColumn tableName="books" 
+                     oldColumnName="updated_by" 
+                     newColumnName="modified_by" 
+                     columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <changeSet id="0009-10" author="bwissal">
+        <!-- Rename audit columns in chapters table -->
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="chapters" columnName="updated_at"/>
+        </preConditions>
+        <renameColumn tableName="chapters" 
+                     oldColumnName="updated_at" 
+                     newColumnName="modified_at" 
+                     columnDataType="TIMESTAMP"/>
+    </changeSet>
+
+    <changeSet id="0009-11" author="bwissal">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="chapters" columnName="updated_by"/>
+        </preConditions>
+        <renameColumn tableName="chapters" 
+                     oldColumnName="updated_by" 
+                     newColumnName="modified_by" 
+                     columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <changeSet id="0009-12" author="bwissal">
+        <!-- Rename audit columns in comments table -->
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="comments" columnName="updated_at"/>
+        </preConditions>
+        <renameColumn tableName="comments" 
+                     oldColumnName="updated_at" 
+                     newColumnName="modified_at" 
+                     columnDataType="TIMESTAMP"/>
+    </changeSet>
+
+    <changeSet id="0009-13" author="bwissal">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="comments" columnName="updated_by"/>
+        </preConditions>
+        <renameColumn tableName="comments" 
+                     oldColumnName="updated_by" 
+                     newColumnName="modified_by" 
+                     columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+    <changeSet id="0009-14" author="bwissal">
+        <!-- Rename audit columns in notifications table -->
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="notifications" columnName="updated_at"/>
+        </preConditions>
+        <renameColumn tableName="notifications" 
+                     oldColumnName="updated_at" 
+                     newColumnName="modified_at" 
+                     columnDataType="TIMESTAMP"/>
+    </changeSet>
+
+    <changeSet id="0009-15" author="bwissal">
+        <preConditions onFail="MARK_RAN">
+            <columnExists tableName="notifications" columnName="updated_by"/>
+        </preConditions>
+        <renameColumn tableName="notifications" 
+                     oldColumnName="updated_by" 
+                     newColumnName="modified_by" 
+                     columnDataType="VARCHAR(255)"/>
+    </changeSet>
+
+</databaseChangeLog> 
