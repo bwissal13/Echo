@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.example.echo01.common.entities.BaseEntity;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 @Builder
@@ -35,5 +36,22 @@ public class OTP extends BaseEntity {
 
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(this.expiryDate);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OTP otp = (OTP) o;
+        return used == otp.used &&
+               Objects.equals(code, otp.code) &&
+               Objects.equals(email, otp.email) &&
+               Objects.equals(expiryDate, otp.expiryDate) &&
+               Objects.equals(user, otp.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(code, email, expiryDate, used, user);
     }
 } 

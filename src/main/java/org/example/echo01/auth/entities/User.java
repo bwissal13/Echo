@@ -35,8 +35,12 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Builder.Default
     private boolean enabled = false;
+
+    @Builder.Default
     private boolean emailVerified = false;
+
     private String emailVerificationToken;
     private LocalDateTime emailVerificationTokenExpiry;
 

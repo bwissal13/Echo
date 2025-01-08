@@ -93,7 +93,6 @@ public class AuthenticationController {
         }
 
         // Extract the token and revoke it
-        final String jwt = authHeader.substring(7);
         logoutService.logout(request, null, null);
 
         return ResponseEntity.ok(AuthenticationResponse.builder()
