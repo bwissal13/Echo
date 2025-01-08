@@ -2,10 +2,8 @@ package org.example.echo01.common.services;
 
 import lombok.RequiredArgsConstructor;
 import org.example.echo01.auth.services.UserService;
-import org.example.echo01.common.dto.request.RoleChangeRequestDto;
 import org.example.echo01.common.dto.response.RoleChangeRequestResponse;
 import org.example.echo01.auth.entities.User;
-import org.example.echo01.common.entities.RoleChangeRequest;
 import org.example.echo01.common.repositories.RoleChangeRequestRepository;
 import org.example.echo01.auth.repositories.UserRepository;
 import org.example.echo01.common.exceptions.CustomException;
@@ -23,14 +21,14 @@ public class RoleService {
     private final UserService userService;
 
     @Transactional
-    public void createRoleChangeRequest(RoleChangeRequestDto requestDto) {
+    public void createRoleChangeRequest(org.example.echo01.common.dto.request.RoleChangeRequest requestDto) {
         User currentUser = userService.getCurrentUser();
 
         if (!roleChangeRequestRepository.findByUserAndProcessedFalse(currentUser).isEmpty()) {
             throw new CustomException("You already have a pending role change request");
         }
 
-        var roleRequest = RoleChangeRequest.builder()
+        var roleRequest = org.example.echo01.common.entities.RoleChangeRequest.builder()
                 .user(currentUser)
                 .requestedRole(requestDto.getRequestedRole())
                 .reason(requestDto.getReason())
@@ -74,7 +72,7 @@ public class RoleService {
                 .toList();
     }
 
-    private RoleChangeRequestResponse mapToResponse(RoleChangeRequest request) {
+    private RoleChangeRequestResponse mapToResponse(org.example.echo01.common.entities.RoleChangeRequest request) {
         return RoleChangeRequestResponse.builder()
                 .id(request.getId())
                 .userId(request.getUser().getId())
