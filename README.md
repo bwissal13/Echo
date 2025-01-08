@@ -1,123 +1,245 @@
-# Echo API
+# Echo01 - Online Reading Platform
 
-Une API RESTful sécurisée avec Spring Boot et JWT.
+## Overview
+Echo01 is a sophisticated online reading platform that enables users to publish, read, and interact with books. The platform supports multiple user roles (Reader, Author, Admin) and implements secure authentication and authorization mechanisms.
 
-## Fonctionnalités
+## Project Structure
 
-- 🔐 Authentification JWT avec refresh token
-- 👥 Gestion des utilisateurs avec différents rôles
-- 📝 Validation des données
-- 📊 Monitoring avec Actuator et Prometheus
-- 🚦 Rate limiting
-- 💾 Cache avec Caffeine
-- 📝 Documentation OpenAPI/Swagger
-- 🔍 Logging avancé
-- 🔄 Migration de base de données avec Liquibase
-
-## Prérequis
-
-- Java 17
-- Maven
-- PostgreSQL
-- Docker (pour les tests)
-
-## Installation
-
-1. Cloner le repository :
-```bash
-git clone https://github.com/yourusername/echo01.git
-cd echo01
+```
+src/main/java/org/example/echo01/
+├── auth/                    # Authentication related components
+│   ├── config/             # Security configurations
+│   ├── controllers/        # Authentication endpoints
+│   ├── dto/                # Data transfer objects
+│   ├── entities/           # Authentication related entities
+│   ├── repositories/       # Data access layer
+│   └── services/          # Business logic
+├── common/                 # Shared components
+│   ├── dto/               # Common DTOs
+│   ├── entities/          # Domain entities
+│   ├── repositories/      # Data repositories
+│   └── services/         # Business services
+└── config/                # Application configurations
 ```
 
-2. Configurer la base de données PostgreSQL :
-```bash
-createdb echo_db
+## Features
+
+### Authentication & Authorization
+- Secure JWT-based authentication
+- Role-based access control
+- Token refresh mechanism
+- Email verification
+- Password reset functionality
+
+### User Management
+- User registration and profile management
+- Role change requests
+- Admin approval workflow
+
+### Content Management
+- Book creation and management
+- Chapter organization
+- Comment system
+- Notification system
+
+## API Endpoints
+
+### Authentication Endpoints
+```
+POST /api/v1/auth/register
+- Register a new user
+- Body: { firstName, lastName, email, password }
+- Returns: AuthenticationResponse with JWT token
+
+POST /api/v1/auth/login
+- Authenticate user
+- Body: { email, password }
+- Returns: AuthenticationResponse with JWT token
+
+POST /api/v1/auth/refresh-token
+- Refresh JWT token
+- Header: Authorization: Bearer <refresh-token>
+- Returns: New access token
+
+POST /api/v1/auth/verify-email
+- Verify user's email
+- Query param: token
+- Returns: Success message
+
+POST /api/v1/auth/forgot-password
+- Initiate password reset
+- Body: { email }
+- Returns: Success message
+
+POST /api/v1/auth/reset-password
+- Reset password
+- Body: { token, newPassword }
+- Returns: Success message
 ```
 
-3. Configurer les variables d'environnement (ou utiliser application.properties) :
-```bash
-export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/echo_db
-export SPRING_DATASOURCE_USERNAME=postgres
-export SPRING_DATASOURCE_PASSWORD=postgres
+### Role Management Endpoints
+```
+POST /api/v1/roles/request
+- Request role change
+- Body: { requestedRole, reason }
+- Returns: RoleChangeRequestResponse
+
+GET /api/v1/roles/requests/current
+- Get current user's role requests
+- Returns: List of RoleChangeRequestResponse
+
+GET /api/v1/roles/requests/pending
+- Get all pending role requests (Admin only)
+- Returns: List of RoleChangeRequestResponse
+
+PUT /api/v1/roles/requests/{requestId}/process
+- Process role change request (Admin only)
+- Body: { approved, adminComment }
+- Returns: RoleChangeRequestResponse
 ```
 
-4. Compiler et lancer l'application :
-```bash
-mvn clean install
-mvn spring-boot:run
+### Book Management Endpoints
+```
+POST /api/v1/books
+- Create new book (Author only)
+- Body: { title, description, genre }
+- Returns: BookResponse
+
+GET /api/v1/books
+- Get all books
+- Query params: page, size, sort
+- Returns: Page<BookResponse>
+
+GET /api/v1/books/{bookId}
+- Get book details
+- Returns: BookResponse
+
+PUT /api/v1/books/{bookId}
+- Update book (Author only)
+- Body: { title, description, genre }
+- Returns: BookResponse
+
+DELETE /api/v1/books/{bookId}
+- Delete book (Author only)
+- Returns: Success message
 ```
 
-## Documentation API
-
-La documentation Swagger est disponible à :
+### Chapter Management Endpoints
 ```
-http://localhost:8080/swagger-ui.html
-```
+POST /api/v1/books/{bookId}/chapters
+- Add chapter to book (Author only)
+- Body: { title, content }
+- Returns: ChapterResponse
 
-### Endpoints principaux
+GET /api/v1/books/{bookId}/chapters
+- Get all chapters of a book
+- Returns: List<ChapterResponse>
 
-#### Authentification
-- POST `/api/v1/auth/register` - Inscription
-- POST `/api/v1/auth/login` - Connexion
-- POST `/api/v1/auth/refresh-token` - Rafraîchir le token
-- POST `/api/v1/auth/logout` - Déconnexion
+PUT /api/v1/books/{bookId}/chapters/{chapterId}
+- Update chapter (Author only)
+- Body: { title, content }
+- Returns: ChapterResponse
 
-## Sécurité
-
-- Authentification JWT
-- Protection CSRF désactivée (API stateless)
-- Rate limiting par IP
-- Validation des données
-- Audit logging
-
-## Monitoring
-
-Endpoints Actuator disponibles :
-- `/actuator/health` - État de l'application
-- `/actuator/metrics` - Métriques
-- `/actuator/prometheus` - Métriques pour Prometheus
-
-## Tests
-
-Exécuter les tests :
-```bash
-# Tests unitaires
-mvn test
-
-# Tests d'intégration
-mvn verify
+DELETE /api/v1/books/{bookId}/chapters/{chapterId}
+- Delete chapter (Author only)
+- Returns: Success message
 ```
 
-## Bonnes pratiques implémentées
+### Comment System Endpoints
+```
+POST /api/v1/books/{bookId}/chapters/{chapterId}/comments
+- Add comment
+- Body: { content }
+- Returns: CommentResponse
 
-1. **Architecture**
-   - Clean Architecture
-   - Séparation des responsabilités
-   - DTOs pour la validation
+GET /api/v1/books/{bookId}/chapters/{chapterId}/comments
+- Get chapter comments
+- Returns: List<CommentResponse>
 
-2. **Sécurité**
-   - Gestion sécurisée des tokens
-   - Protection contre les attaques courantes
-   - Validation des entrées
+PUT /api/v1/comments/{commentId}
+- Update comment (Owner only)
+- Body: { content }
+- Returns: CommentResponse
 
-3. **Performance**
-   - Cache
-   - Rate limiting
-   - Indexes de base de données
+DELETE /api/v1/comments/{commentId}
+- Delete comment (Owner or Admin)
+- Returns: Success message
+```
 
-4. **Maintenance**
-   - Logging complet
-   - Tests automatisés
-   - Documentation API
+### Notification Endpoints
+```
+GET /api/v1/notifications
+- Get user notifications
+- Returns: List<NotificationResponse>
 
-## Contribution
+PUT /api/v1/notifications/{notificationId}/read
+- Mark notification as read
+- Returns: NotificationResponse
+```
 
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/amazing-feature`)
-3. Commit les changements (`git commit -m 'Add amazing feature'`)
-4. Push la branche (`git push origin feature/amazing-feature`)
-5. Ouvrir une Pull Request
+## Security
+
+The application implements several security measures:
+- JWT-based authentication
+- Password encryption using BCrypt
+- Role-based access control
+- Request validation
+- XSS protection
+- CSRF protection
+- Rate limiting
+
+## Database Schema
+
+The application uses PostgreSQL with Liquibase for database migrations. Key tables include:
+- users
+- books
+- chapters
+- comments
+- notifications
+- role_change_requests
+- refresh_tokens
+
+## Getting Started
+
+1. Prerequisites:
+   - Java 17
+   - PostgreSQL
+   - Maven
+
+2. Configuration:
+   ```
+   spring.datasource.url=jdbc:postgresql://localhost:5432/your_db
+   spring.datasource.username=your_username
+   spring.datasource.password=your_password
+   ```
+
+3. Run the application:
+   ```
+   ./mvnw spring-boot:run
+   ```
+
+4. Access the API at `http://localhost:8080`
+
+## Testing
+
+The application includes:
+- Unit tests
+- Integration tests
+- API tests
+
+Run tests with:
+```
+./mvnw test
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit changes
+4. Push to the branch
+5. Create a Pull Request
 
 ## License
 
-MIT 
+This project is licensed under the MIT License. 
