@@ -7,11 +7,11 @@ import org.example.echo01.auth.entities.User;
 import org.example.echo01.common.repositories.RoleChangeRequestRepository;
 import org.example.echo01.auth.repositories.UserRepository;
 import org.example.echo01.common.exceptions.CustomException;
+import org.example.echo01.common.entities.RoleChangeRequest as RoleChangeRequestEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,13 +23,13 @@ public class RoleService {
 
     @Transactional
     public void createRoleChangeRequest(RoleChangeRequest request) {
-        var currentUser = authenticationService.getCurrentUser();
+        User currentUser = authenticationService.getCurrentUser();
 
         if (!roleChangeRequestRepository.findByUserAndProcessedFalse(currentUser).isEmpty()) {
             throw new CustomException("You already have a pending role change request");
         }
 
-        var roleRequest = org.example.echo01.common.entities.RoleChangeRequest.builder()
+        var roleRequest = RoleChangeRequestEntity.builder()
                 .user(currentUser)
                 .requestedRole(request.getRequestedRole())
                 .reason(request.getReason())
@@ -66,21 +66,24 @@ public class RoleService {
     }
 
     public List<RoleChangeRequestResponse> getCurrentUserRequests() {
-        var currentUser = authenticationService.getCurrentUser();
+        User currentUser = authenticationService.getCurrentUser();
         return roleChangeRequestRepository.findByUserAndProcessedFalse(currentUser)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
-    private RoleChangeRequestResponse mapToResponse(org.example.echo01.common.entities.RoleChangeRequest request) {
+    private RoleChangeRequestResponse mapToResponse(RoleChangeRequestEntity request) {
         return RoleChangeRequestResponse.builder()
                 .id(request.getId())
+                .userId(request.getUser().getId())
+                .userEmail(request.getUser().getEmail())
                 .requestedRole(request.getRequestedRole())
                 .reason(request.getReason())
                 .approved(request.isApproved())
                 .processed(request.isProcessed())
                 .adminComment(request.getAdminComment())
+                .createdAt(request.getCreatedAt())
                 .build();
     }
 } 
