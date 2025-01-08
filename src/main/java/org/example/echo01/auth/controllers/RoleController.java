@@ -2,7 +2,7 @@ package org.example.echo01.auth.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.echo01.common.dto.request.RoleChangeRequestDto;
+import org.example.echo01.common.dto.request.RoleChangeRequest;
 import org.example.echo01.common.dto.response.RoleChangeRequestResponse;
 import org.example.echo01.common.services.RoleService;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +21,7 @@ public class RoleController {
     private final RoleService roleService;
 
     @PostMapping("/request")
-    public ResponseEntity<?> requestRoleChange(@Valid @RequestBody RoleChangeRequestDto request) {
+    public ResponseEntity<?> requestRoleChange(@Valid @RequestBody RoleChangeRequest request) {
         roleService.createRoleChangeRequest(request);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Role change request submitted successfully");
