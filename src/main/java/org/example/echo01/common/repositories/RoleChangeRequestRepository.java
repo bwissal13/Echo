@@ -1,7 +1,7 @@
-package org.example.echo01.auth.repositories;
+package org.example.echo01.common.repositories;
 
-import org.example.echo01.auth.entities.RoleChangeRequest;
 import org.example.echo01.auth.entities.User;
+import org.example.echo01.common.entities.RoleChangeRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package org.example.echo01.auth.dto.response;
+package org.example.echo01.common.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package org.example.echo01.auth.dto.request;
+package org.example.echo01.common.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
