@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.echo01.common.dto.request.RoleChangeRequest;
 import org.example.echo01.common.dto.response.RoleChangeRequestResponse;
-import org.example.echo01.common.services.RoleService;
+import org.example.echo01.common.services.IRoleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class RoleController {
 
-    private final RoleService roleService;
+    private final IRoleService roleService;
 
     @PostMapping("/request")
     public ResponseEntity<?> requestRoleChange(@Valid @RequestBody RoleChangeRequest request) {
