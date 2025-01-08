@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="1" author="echo01" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="users"/>
+            </not>
+        </preConditions>
+        
+        <createTable tableName="users">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="firstname" type="varchar(255)"/>
+            <column name="lastname" type="varchar(255)"/>
+            <column name="email" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="password" type="varchar(255)"/>
+            <column name="bio" type="varchar(255)"/>
+            <column name="profile_picture" type="varchar(255)"/>
+            <column name="role" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="enabled" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="echo01" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="tokens"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="tokens">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="token" type="varchar(255)">
+                <constraints unique="true"/>
+            </column>
+            <column name="token_type" type="varchar(20)"/>
+            <column name="revoked" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expired" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="true" foreignKeyName="fk_token_user" references="users(id)"/>
+            </column>
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp"/>
+            <column name="created_by" type="varchar(255)"/>
+            <column name="modified_by" type="varchar(255)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="3" author="echo01" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM information_schema.table_constraints 
+                    WHERE table_name = 'users' AND constraint_name = 'chk_user_role'
+                </sqlCheck>
+            </not>
+        </preConditions>
+        
+        <sql>
+            ALTER TABLE users ADD CONSTRAINT chk_user_role 
+            CHECK (role IN ('USER', 'AUTHOR', 'ADMIN'));
+        </sql>
+    </changeSet>
+
+    <changeSet id="4" author="echo01" runOnChange="true">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <sqlCheck expectedResult="1">
+                    SELECT COUNT(*) FROM information_schema.table_constraints 
+                    WHERE table_name = 'tokens' AND constraint_name = 'chk_token_type'
+                </sqlCheck>
+            </not>
+        </preConditions>
+        
+        <sql>
+            ALTER TABLE tokens ADD CONSTRAINT chk_token_type 
+            CHECK (token_type IN ('ACCESS', 'REFRESH'));
+        </sql>
+    </changeSet>
+</databaseChangeLog> 

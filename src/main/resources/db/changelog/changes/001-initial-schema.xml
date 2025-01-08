@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="001" author="echo">
+        <!-- Create users table -->
+        <createTable tableName="users">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="firstname" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastname" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="varchar(100)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="password" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="bio" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="role" type="varchar(20)" defaultValue="USER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="profile_picture" type="varchar(255)"/>
+            <column name="enabled" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Audit columns -->
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp"/>
+            <column name="created_by" type="varchar(50)"/>
+            <column name="modified_by" type="varchar(50)"/>
+        </createTable>
+
+        <!-- Create tokens table -->
+        <createTable tableName="tokens">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="token" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="token_type" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="revoked" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expired" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"
+                           foreignKeyName="fk_token_user"
+                           references="users(id)"
+                           deleteCascade="true"/>
+            </column>
+            <!-- Audit columns -->
+            <column name="created_at" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp"/>
+            <column name="created_by" type="varchar(50)"/>
+            <column name="modified_by" type="varchar(50)"/>
+        </createTable>
+
+        <!-- Add indexes -->
+        <createIndex indexName="idx_user_email"
+                    tableName="users"
+                    unique="true">
+            <column name="email"/>
+        </createIndex>
+
+        <createIndex indexName="idx_token_user"
+                    tableName="tokens">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_token_value"
+                    tableName="tokens"
+                    unique="true">
+            <column name="token"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog> 
