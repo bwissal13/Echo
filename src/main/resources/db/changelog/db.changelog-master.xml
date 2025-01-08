@@ -11,5 +11,6 @@
     <include file="db/changelog/changes/0004-add-chapter-table.xml"/>
     <include file="db/changelog/changes/0005-add-comment-table.xml"/>
     <include file="db/changelog/changes/0006-add-notification-table.xml"/>
+    <include file="db/changelog/changes/0007-add-role-change-requests.xml"/>
 
 </databaseChangeLog> 
