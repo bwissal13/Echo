@@ -2,8 +2,8 @@ package org.example.echo01.auth.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.echo01.auth.dto.request.RoleChangeRequest;
-import org.example.echo01.auth.dto.response.RoleChangeRequestResponse;
+import org.example.echo01.common.dto.request.RoleChangeRequest;
+import org.example.echo01.common.dto.response.RoleChangeRequestResponse;
 import org.example.echo01.auth.services.RoleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

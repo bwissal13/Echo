@@ -1,10 +1,10 @@
 package org.example.echo01.auth.services;
 
 import lombok.RequiredArgsConstructor;
-import org.example.echo01.auth.dto.request.RoleChangeRequest;
-import org.example.echo01.auth.dto.response.RoleChangeRequestResponse;
+import org.example.echo01.common.dto.request.RoleChangeRequest;
+import org.example.echo01.common.dto.response.RoleChangeRequestResponse;
 import org.example.echo01.auth.entities.User;
-import org.example.echo01.auth.repositories.RoleChangeRequestRepository;
+import org.example.echo01.common.repositories.RoleChangeRequestRepository;
 import org.example.echo01.auth.repositories.UserRepository;
 import org.example.echo01.common.exceptions.CustomException;
 import org.springframework.stereotype.Service;
@@ -19,21 +19,22 @@ public class RoleService {
 
     private final RoleChangeRequestRepository roleChangeRequestRepository;
     private final UserRepository userRepository;
-    private final UserService userService;
+    private final AuthenticationService authenticationService;
 
     @Transactional
     public void createRoleChangeRequest(RoleChangeRequest request) {
-        User currentUser = userService.getCurrentUser();
-        
-        // Check if user already has pending requests
+        var currentUser = authenticationService.getCurrentUser();
+
         if (!roleChangeRequestRepository.findByUserAndProcessedFalse(currentUser).isEmpty()) {
             throw new CustomException("You already have a pending role change request");
         }
 
-        var roleRequest = org.example.echo01.auth.entities.RoleChangeRequest.builder()
+        var roleRequest = org.example.echo01.common.entities.RoleChangeRequest.builder()
                 .user(currentUser)
                 .requestedRole(request.getRequestedRole())
                 .reason(request.getReason())
+                .approved(false)
+                .processed(false)
                 .build();
 
         roleChangeRequestRepository.save(roleRequest);
@@ -43,7 +44,7 @@ public class RoleService {
         return roleChangeRequestRepository.findAllByProcessedFalse()
                 .stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
@@ -56,32 +57,30 @@ public class RoleService {
         request.setAdminComment(comment);
 
         if (approved) {
-            request.getUser().setRole(request.getRequestedRole());
-            userRepository.save(request.getUser());
+            var user = request.getUser();
+            user.setRole(request.getRequestedRole());
+            userRepository.save(user);
         }
 
         roleChangeRequestRepository.save(request);
     }
 
     public List<RoleChangeRequestResponse> getCurrentUserRequests() {
-        User currentUser = userService.getCurrentUser();
+        var currentUser = authenticationService.getCurrentUser();
         return roleChangeRequestRepository.findByUserAndProcessedFalse(currentUser)
                 .stream()
                 .map(this::mapToResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    private RoleChangeRequestResponse mapToResponse(org.example.echo01.auth.entities.RoleChangeRequest request) {
+    private RoleChangeRequestResponse mapToResponse(org.example.echo01.common.entities.RoleChangeRequest request) {
         return RoleChangeRequestResponse.builder()
                 .id(request.getId())
-                .userId(request.getUser().getId())
-                .userEmail(request.getUser().getEmail())
                 .requestedRole(request.getRequestedRole())
                 .reason(request.getReason())
                 .approved(request.isApproved())
                 .processed(request.isProcessed())
                 .adminComment(request.getAdminComment())
-                .createdAt(request.getCreatedAt())
                 .build();
     }
 } 
