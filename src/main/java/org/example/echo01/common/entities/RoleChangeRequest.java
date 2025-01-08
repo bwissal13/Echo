@@ -5,7 +5,6 @@ import lombok.*;
 import org.example.echo01.auth.entities.User;
 import org.example.echo01.auth.enums.Role;
 
-
 @Data
 @Builder
 @NoArgsConstructor

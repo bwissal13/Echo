@@ -1,9 +1,11 @@
-package org.example.echo01.auth.entities;
+package org.example.echo01.common.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
-import org.example.echo01.auth.enums.Genre;
+
+import org.example.echo01.auth.entities.User;
+import org.example.echo01.common.enums.Genre;
 
 @Data
 @Builder

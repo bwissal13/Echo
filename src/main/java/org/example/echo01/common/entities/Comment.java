@@ -1,7 +1,9 @@
-package org.example.echo01.auth.entities;
+package org.example.echo01.common.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.echo01.auth.entities.User;
+
 import java.time.LocalDateTime;
 
 @Data

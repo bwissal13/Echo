@@ -1,9 +1,11 @@
-package org.example.echo01.auth.entities;
+package org.example.echo01.common.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
-import org.example.echo01.auth.enums.NotificationType;
+
+import org.example.echo01.auth.entities.User;
+import org.example.echo01.common.enums.NotificationType;
 
 @Data
 @Builder

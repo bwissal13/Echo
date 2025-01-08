@@ -1,4 +1,4 @@
-package org.example.echo01.auth.enums;
+package org.example.echo01.common.enums;
 
 public enum Genre {
     ROMANCE,
