@@ -1,13 +1,14 @@
-package org.example.echo01.auth.services;
+package org.example.echo01.common.services;
 
 import lombok.RequiredArgsConstructor;
-import org.example.echo01.common.dto.request.RoleChangeRequest;
+import org.example.echo01.auth.services.UserService;
+import org.example.echo01.common.dto.request.RoleChangeRequestDto;
 import org.example.echo01.common.dto.response.RoleChangeRequestResponse;
 import org.example.echo01.auth.entities.User;
+import org.example.echo01.common.entities.RoleChangeRequest;
 import org.example.echo01.common.repositories.RoleChangeRequestRepository;
 import org.example.echo01.auth.repositories.UserRepository;
 import org.example.echo01.common.exceptions.CustomException;
-import org.example.echo01.common.entities.RoleChangeRequest as RoleChangeRequestEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,20 +20,20 @@ public class RoleService {
 
     private final RoleChangeRequestRepository roleChangeRequestRepository;
     private final UserRepository userRepository;
-    private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     @Transactional
-    public void createRoleChangeRequest(RoleChangeRequest request) {
-        User currentUser = authenticationService.getCurrentUser();
+    public void createRoleChangeRequest(RoleChangeRequestDto requestDto) {
+        User currentUser = userService.getCurrentUser();
 
         if (!roleChangeRequestRepository.findByUserAndProcessedFalse(currentUser).isEmpty()) {
             throw new CustomException("You already have a pending role change request");
         }
 
-        var roleRequest = RoleChangeRequestEntity.builder()
+        var roleRequest = RoleChangeRequest.builder()
                 .user(currentUser)
-                .requestedRole(request.getRequestedRole())
-                .reason(request.getReason())
+                .requestedRole(requestDto.getRequestedRole())
+                .reason(requestDto.getReason())
                 .approved(false)
                 .processed(false)
                 .build();
@@ -66,14 +67,14 @@ public class RoleService {
     }
 
     public List<RoleChangeRequestResponse> getCurrentUserRequests() {
-        User currentUser = authenticationService.getCurrentUser();
+        User currentUser = userService.getCurrentUser();
         return roleChangeRequestRepository.findByUserAndProcessedFalse(currentUser)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
-    private RoleChangeRequestResponse mapToResponse(RoleChangeRequestEntity request) {
+    private RoleChangeRequestResponse mapToResponse(RoleChangeRequest request) {
         return RoleChangeRequestResponse.builder()
                 .id(request.getId())
                 .userId(request.getUser().getId())
