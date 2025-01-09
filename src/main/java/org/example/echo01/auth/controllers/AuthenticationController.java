@@ -3,6 +3,7 @@ package org.example.echo01.auth.controllers;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.echo01.auth.dto.request.LoginRequest;
 import org.example.echo01.auth.dto.request.RegisterRequest;
@@ -13,6 +14,8 @@ import org.example.echo01.auth.entities.User;
 import org.example.echo01.auth.services.AuthenticationService;
 import org.example.echo01.auth.services.EmailService;
 import org.example.echo01.auth.services.OTPService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthenticationController {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthenticationController.class);
     private final AuthenticationService authenticationService;
     private final OTPService otpService;
     private final EmailService emailService;
@@ -36,9 +40,10 @@ public class AuthenticationController {
 
     @PostMapping("/verify-otp")
     public ResponseEntity<AuthenticationResponse> verifyOTP(
-            @RequestBody VerifyOTPRequest request
+            @Valid @RequestBody VerifyOTPRequest request
     ) {
-        boolean verified = otpService.verifyOTP(request.getEmail(), request.getOtp());
+        log.debug("Received OTP verification request - Email: {}, Code: {}", request.getEmail(), request.getCode());
+        boolean verified = otpService.verifyOTP(request.getEmail(), request.getCode());
         return ResponseEntity.ok(AuthenticationResponse.builder()
                 .success(verified)
                 .message("Email verified successfully")
@@ -47,7 +52,7 @@ public class AuthenticationController {
 
     @PostMapping("/resend-otp")
     public ResponseEntity<AuthenticationResponse> resendOTP(
-            @RequestBody ResendOTPRequest request
+            @Valid @RequestBody ResendOTPRequest request
     ) {
         User user = authenticationService.getUserByEmail(request.getEmail());
         otpService.generateAndSendOTP(user);
