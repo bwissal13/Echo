@@ -9,12 +9,9 @@ import org.example.echo01.auth.dto.request.RegisterRequest;
 import org.example.echo01.auth.dto.request.RefreshTokenRequest;
 import org.example.echo01.auth.dto.response.AuthenticationResponse;
 import org.example.echo01.auth.dto.response.UserResponse;
-import org.example.echo01.auth.entities.Token;
 import org.example.echo01.auth.entities.User;
 import org.example.echo01.auth.entities.RefreshToken;
 import org.example.echo01.auth.enums.Role;
-import org.example.echo01.auth.enums.TokenType;
-import org.example.echo01.auth.repositories.TokenRepository;
 import org.example.echo01.auth.repositories.UserRepository;
 import org.example.echo01.common.exceptions.CustomException;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +29,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserRepository userRepository;
-    private final TokenRepository tokenRepository;
+    private final ITokenService tokenService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -66,7 +63,7 @@ public class AuthenticationService {
         
         var savedUser = userRepository.save(user);
         var accessToken = jwtService.generateToken(user);
-        saveUserToken(savedUser, accessToken);
+        tokenService.saveUserToken(savedUser, accessToken);
         
         // Generate device ID for refresh token
         String deviceId = generateDeviceId(httpRequest);
@@ -108,8 +105,8 @@ public class AuthenticationService {
         );
         
         var accessToken = jwtService.generateToken(user);
-        revokeAllUserTokens(user);
-        saveUserToken(user, accessToken);
+        tokenService.revokeAllUserTokens(user);
+        tokenService.saveUserToken(user, accessToken);
         
         // Generate device ID from user agent or other request properties
         String deviceId = generateDeviceId(httpRequest);
@@ -130,30 +127,6 @@ public class AuthenticationService {
                     .emailVerified(user.isEmailVerified())
                     .build())
                 .build();
-    }
-
-    private void saveUserToken(User user, String jwtToken) {
-        var token = Token.builder()
-                .user(user)
-                .token(jwtToken)
-                .tokenType(TokenType.ACCESS)
-                .expired(false)
-                .revoked(false)
-                .build();
-        tokenRepository.save(token);
-    }
-
-    private void revokeAllUserTokens(User user) {
-        var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
-        if (validUserTokens.isEmpty())
-            return;
-        
-        validUserTokens.forEach(token -> {
-            token.setExpired(true);
-            token.setRevoked(true);
-        });
-        
-        tokenRepository.saveAll(validUserTokens);
     }
 
     @Transactional
@@ -183,8 +156,8 @@ public class AuthenticationService {
 
             // Generate new access token
             String newAccessToken = jwtService.generateToken(user);
-            revokeAllUserTokens(user);
-            saveUserToken(user, newAccessToken);
+            tokenService.revokeAllUserTokens(user);
+            tokenService.saveUserToken(user, newAccessToken);
 
             return AuthenticationResponse.builder()
                     .accessToken(newAccessToken)
@@ -224,12 +197,7 @@ public class AuthenticationService {
         // Get access token and revoke it
         String accessToken = extractAccessToken(request);
         if (accessToken != null) {
-            var token = tokenRepository.findByToken(accessToken);
-            token.ifPresent(t -> {
-                t.setExpired(true);
-                t.setRevoked(true);
-                tokenRepository.save(t);
-            });
+            tokenService.revokeToken(accessToken);
         }
 
         // Clear refresh token cookie

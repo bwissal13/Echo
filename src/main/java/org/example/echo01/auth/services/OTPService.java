@@ -49,7 +49,7 @@ public class OTPService {
             log.debug("OTP email sent successfully to: {}", user.getEmail());
         } catch (MessagingException e) {
             log.error("Failed to send OTP email", e);
-            throw new CustomException("Failed to send OTP email");
+            throw new CustomException("Failed to send OTP email: " + e.getMessage());
         }
     }
 
