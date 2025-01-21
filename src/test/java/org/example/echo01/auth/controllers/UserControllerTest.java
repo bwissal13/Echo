@@ -2,28 +2,28 @@ package org.example.echo01.auth.controllers;
 
 import org.example.echo01.auth.dto.request.UpdateProfileRequest;
 import org.example.echo01.auth.dto.response.UserResponse;
+import org.example.echo01.auth.entities.User;
 import org.example.echo01.auth.enums.Role;
-import org.example.echo01.auth.services.UserService;
+import org.example.echo01.auth.services.IUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Collections;
 import java.util.Map;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 class UserControllerTest {
 
     @Mock
-    private UserService userService;
+    private IUserService userService;
 
-    @InjectMocks
     private UserController userController;
 
     private UserResponse mockUserResponse;
@@ -31,6 +31,9 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
+        MockitoAnnotations.openMocks(this);
+        userController = new UserController(userService);
+
         mockUserResponse = UserResponse.builder()
                 .id(1L)
                 .firstname("John")
@@ -50,13 +53,13 @@ class UserControllerTest {
     }
 
     @Test
-    void getCurrentUserProfile_ShouldReturnUserProfile() {
+    void getCurrentUserProfile_ShouldReturnUserResponse() {
         when(userService.getCurrentUserProfile()).thenReturn(mockUserResponse);
 
         ResponseEntity<UserResponse> response = userController.getCurrentUserProfile();
 
         assertNotNull(response);
-        assertEquals(200, response.getStatusCode().value());
+        assertEquals(200, response.getStatusCodeValue());
         assertEquals(mockUserResponse, response.getBody());
         verify(userService, times(1)).getCurrentUserProfile();
     }
@@ -123,5 +126,32 @@ class UserControllerTest {
         assertEquals("User deleted successfully", responseBody.get("message"));
         assertEquals("true", responseBody.get("success"));
         verify(userService, times(1)).deleteUser(1L);
+    }
+
+    @Test
+    void getAllUsers_ShouldReturnPageOfUsers() {
+        // Arrange
+        Page<UserResponse> mockPage = new PageImpl<>(Collections.singletonList(createMockUserResponse()));
+        when(userService.getAllUsers(0, 10, "")).thenReturn(mockPage);
+
+        // Act
+        ResponseEntity<Page<UserResponse>> response = userController.getAllUsers(0, 10, "");
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(mockPage, response.getBody());
+    }
+
+    private UserResponse createMockUserResponse() {
+        return UserResponse.builder()
+                .id(1L)
+                .firstname("John")
+                .lastname("Doe")
+                .email("john@example.com")
+                .role(Role.USER)
+                .enabled(true)
+                .emailVerified(true)
+                .build();
     }
 } 
