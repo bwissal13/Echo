@@ -9,6 +9,7 @@ import org.example.echo01.common.repositories.RoleChangeRequestRepository;
 import org.example.echo01.auth.repositories.UserRepository;
 import org.example.echo01.common.exceptions.CustomException;
 import org.example.echo01.common.services.IRoleService;
+import org.example.echo01.common.mapper.RoleChangeRequestMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ public class RoleServiceImpl implements IRoleService {
     private final RoleChangeRequestRepository roleChangeRequestRepository;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final RoleChangeRequestMapper roleChangeRequestMapper;
 
     @Override
     @Transactional
@@ -31,13 +33,8 @@ public class RoleServiceImpl implements IRoleService {
             throw new CustomException("You already have a pending role change request");
         }
 
-        var roleRequest = new org.example.echo01.common.entities.RoleChangeRequest();
+        var roleRequest = roleChangeRequestMapper.toEntity(requestDto);
         roleRequest.setUser(currentUser);
-        roleRequest.setRequestedRole(requestDto.getRequestedRole());
-        roleRequest.setReason(requestDto.getReason());
-        roleRequest.setApproved(false);
-        roleRequest.setProcessed(false);
-
         roleChangeRequestRepository.save(roleRequest);
     }
 
@@ -45,7 +42,7 @@ public class RoleServiceImpl implements IRoleService {
     public List<RoleChangeRequestResponse> getPendingRequests() {
         return roleChangeRequestRepository.findAllByProcessedFalse()
                 .stream()
-                .map(this::mapToResponse)
+                .map(roleChangeRequestMapper::toResponse)
                 .toList();
     }
 
@@ -73,21 +70,7 @@ public class RoleServiceImpl implements IRoleService {
         User currentUser = userService.getCurrentUser();
         return roleChangeRequestRepository.findByUserAndProcessedFalse(currentUser)
                 .stream()
-                .map(this::mapToResponse)
+                .map(roleChangeRequestMapper::toResponse)
                 .toList();
-    }
-
-    private RoleChangeRequestResponse mapToResponse(org.example.echo01.common.entities.RoleChangeRequest request) {
-        return RoleChangeRequestResponse.builder()
-                .id(request.getId())
-                .userId(request.getUser().getId())
-                .userEmail(request.getUser().getEmail())
-                .requestedRole(request.getRequestedRole())
-                .reason(request.getReason())
-                .approved(request.isApproved())
-                .processed(request.isProcessed())
-                .adminComment(request.getAdminComment())
-                .createdAt(request.getCreatedAt())
-                .build();
     }
 } 
