@@ -16,7 +16,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     private final RateLimitConfig rateLimitConfig;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest  request, HttpServletResponse response, Object handler) throws Exception {
         String ipAddress = getClientIP(request);
         Bucket bucket = rateLimitConfig.resolveBucket(ipAddress);
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
