@@ -9,11 +9,15 @@ import org.example.echo01.auth.dto.request.LoginRequest;
 import org.example.echo01.auth.dto.request.RegisterRequest;
 import org.example.echo01.auth.dto.request.VerifyOTPRequest;
 import org.example.echo01.auth.dto.request.ResendOTPRequest;
+import org.example.echo01.auth.dto.request.RefreshTokenRequest;
 import org.example.echo01.auth.dto.response.AuthenticationResponse;
+import org.example.echo01.auth.dto.response.UserResponse;
 import org.example.echo01.auth.entities.User;
 import org.example.echo01.auth.services.AuthenticationService;
 import org.example.echo01.auth.services.EmailService;
+import org.example.echo01.auth.services.JwtService;
 import org.example.echo01.auth.services.OTPService;
+import org.example.echo01.common.exceptions.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +32,7 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final OTPService otpService;
     private final EmailService emailService;
+    private final JwtService jwtService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
@@ -44,9 +49,23 @@ public class AuthenticationController {
     ) {
         log.debug("Received OTP verification request - Email: {}, Code: {}", request.getEmail(), request.getCode());
         boolean verified = otpService.verifyOTP(request.getEmail(), request.getCode());
+        
+        // Get user after verification
+        User user = authenticationService.getUserByEmail(request.getEmail());
+        String accessToken = jwtService.generateToken(user);
+        
         return ResponseEntity.ok(AuthenticationResponse.builder()
-                .success(verified)
-                .message("Email verified successfully")
+                .accessToken(accessToken)
+                .user(UserResponse.builder()
+                    .id(user.getId())
+                    .firstname(user.getFirstname())
+                    .lastname(user.getLastname())
+                    .email(user.getEmail())
+                    .bio(user.getBio())
+                    .role(user.getRole())
+                    .enabled(user.isEnabled())
+                    .emailVerified(user.isEmailVerified())
+                    .build())
                 .build());
     }
 
@@ -56,9 +75,20 @@ public class AuthenticationController {
     ) {
         User user = authenticationService.getUserByEmail(request.getEmail());
         otpService.generateAndSendOTP(user);
+        String accessToken = jwtService.generateToken(user);
+        
         return ResponseEntity.ok(AuthenticationResponse.builder()
-                .success(true)
-                .message("OTP sent successfully")
+                .accessToken(accessToken)
+                .user(UserResponse.builder()
+                    .id(user.getId())
+                    .firstname(user.getFirstname())
+                    .lastname(user.getLastname())
+                    .email(user.getEmail())
+                    .bio(user.getBio())
+                    .role(user.getRole())
+                    .enabled(user.isEnabled())
+                    .emailVerified(user.isEmailVerified())
+                    .build())
                 .build());
     }
 
@@ -73,10 +103,11 @@ public class AuthenticationController {
 
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthenticationResponse> refreshToken(
+            @RequestBody(required = false) RefreshTokenRequest refreshTokenRequest,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        return ResponseEntity.ok(authenticationService.refreshToken(request, response));
+        return ResponseEntity.ok(authenticationService.refreshToken(refreshTokenRequest, request, response));
     }
 
     @PostMapping("/logout")
@@ -86,7 +117,8 @@ public class AuthenticationController {
     ) {
         authenticationService.logout(request, response);
         return ResponseEntity.ok(AuthenticationResponse.builder()
-                .success(true)
+                .accessToken(null)
+                .user(null)
                 .message("Logged out successfully")
                 .build());
     }
@@ -96,14 +128,11 @@ public class AuthenticationController {
         try {
             emailService.sendOtpEmail(email, "123456");
             return ResponseEntity.ok(AuthenticationResponse.builder()
-                    .success(true)
-                    .message("Test email sent successfully")
+                    .accessToken(null)
+                    .user(null)
                     .build());
         } catch (MessagingException e) {
-            return ResponseEntity.ok(AuthenticationResponse.builder()
-                    .success(false)
-                    .message("Failed to send test email: " + e.getMessage())
-                    .build());
+            throw new CustomException("Failed to send test email: " + e.getMessage());
         }
     }
 } 
