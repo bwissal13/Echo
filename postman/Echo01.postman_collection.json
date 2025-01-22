@@ -1,0 +1,318 @@
+{
+	"info": {
+		"_postman_id": "e5c2e8a0-1b1a-4b5e-8b0a-9b0a1b1a1b1a",
+		"name": "Echo01 API",
+		"description": "API documentation for Echo01 application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"description": "Authentication related endpoints",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"Password123!\",\n    \"bio\": \"Software Developer\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "register"]
+						},
+						"description": "Register a new user"
+					}
+				},
+				{
+					"name": "Verify OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"code\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/verify-otp",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "verify-otp"]
+						},
+						"description": "Verify OTP code sent during registration"
+					}
+				},
+				{
+					"name": "Resend OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john.doe@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/resend-otp",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "resend-otp"]
+						},
+						"description": "Resend OTP code to user's email"
+					}
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"Password123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "login"]
+						},
+						"description": "Login with email and password"
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/refresh-token",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "refresh-token"]
+						},
+						"description": "Refresh access token using refresh token cookie"
+					}
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "logout"]
+						},
+						"description": "Logout and invalidate tokens"
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"description": "User management endpoints",
+			"item": [
+				{
+					"name": "Get Current User Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "me"]
+						},
+						"description": "Get current user's profile"
+					}
+				},
+				{
+					"name": "Update Current User Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\": \"Updated John\",\n    \"lastname\": \"Updated Doe\",\n    \"bio\": \"Senior Software Developer\",\n    \"profilePicture\": \"https://example.com/profile.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "me"]
+						},
+						"description": "Update current user's profile"
+					}
+				},
+				{
+					"name": "Get User By ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "1"]
+						},
+						"description": "Get user by ID (Admin only)"
+					}
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users?page=0&size=10&search=john",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								},
+								{
+									"key": "search",
+									"value": "john"
+								}
+							]
+						},
+						"description": "Get all users with pagination and search (Admin only)"
+					}
+				},
+				{
+					"name": "Update User Role",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/1/role?role=ADMIN",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "1", "role"],
+							"query": [
+								{
+									"key": "role",
+									"value": "ADMIN"
+								}
+							]
+						},
+						"description": "Update user's role (Admin only)"
+					}
+				},
+				{
+					"name": "Update User Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/1/status?enabled=false",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "1", "status"],
+							"query": [
+								{
+									"key": "enabled",
+									"value": "false"
+								}
+							]
+						},
+						"description": "Update user's enabled status (Admin only)"
+					}
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/users/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "users", "1"]
+						},
+						"description": "Delete user (Admin only)"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "your_access_token_here",
+			"type": "string"
+		}
+	]
+} 

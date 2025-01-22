@@ -16,7 +16,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     private final RateLimitConfig rateLimitConfig;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest  request, HttpServletResponse response, Object handler) throws Exception {
         String ipAddress = getClientIP(request);
         Bucket bucket = rateLimitConfig.resolveBucket(ipAddress);
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
@@ -28,7 +28,8 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
         long waitForRefill = probe.getNanosToWaitForRefill() / 1_000_000_000;
         response.addHeader("X-Rate-Limit-Retry-After-Seconds", String.valueOf(waitForRefill));
-        response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(), "Too many requests");
+        response.sendError(HttpStatus.TOO_MANY_REQUESTS.value(), 
+            String.format("Rate limit exceeded. You have exceeded the limit of 10 requests per minute. Please wait %d seconds before trying again.", waitForRefill));
         return false;
     }
 

@@ -1,4 +1,4 @@
-package org.example.echo01.auth.services;
+package org.example.echo01.auth.services.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.example.echo01.auth.dto.request.UpdateProfileRequest;
@@ -8,6 +8,7 @@ import org.example.echo01.auth.enums.Role;
 import org.example.echo01.auth.repositories.UserRepository;
 import org.example.echo01.auth.repositories.TokenRepository;
 import org.example.echo01.auth.repositories.OTPRepository;
+import org.example.echo01.auth.services.IUserService;
 import org.example.echo01.common.exceptions.CustomException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,15 +21,16 @@ import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserServiceImpl implements IUserService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private static final int MAX_PAGE_SIZE = 50;
 
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final OTPRepository otpRepository;
 
+    @Override
     public UserResponse getCurrentUserProfile() {
         logger.debug("Fetching current user profile");
         User user = getCurrentUser();
@@ -36,6 +38,7 @@ public class UserService {
         return mapToUserResponse(user);
     }
 
+    @Override
     @Transactional
     public UserResponse updateProfile(UpdateProfileRequest request) {
         logger.debug("Updating profile for current user");
@@ -70,6 +73,7 @@ public class UserService {
         return mapToUserResponse(user);
     }
 
+    @Override
     public UserResponse getUserById(Long id) {
         try {
             logger.debug("Attempting to find user with ID: {}", id);
@@ -86,6 +90,7 @@ public class UserService {
         }
     }
 
+    @Override
     public Page<UserResponse> getAllUsers(int page, int size, String search) {
         logger.debug("Fetching users - page: {}, size: {}, search: {}", page, size, search);
         
@@ -115,6 +120,7 @@ public class UserService {
         }
     }
 
+    @Override
     public User getCurrentUser() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return userRepository.findByEmail(email)
@@ -135,6 +141,7 @@ public class UserService {
                 .build();
     }
 
+    @Override
     @Transactional
     public UserResponse updateUserRole(Long id, Role role) {
         logger.debug("Updating role to {} for user ID: {}", role, id);
@@ -156,6 +163,7 @@ public class UserService {
         return mapToUserResponse(user);
     }
 
+    @Override
     @Transactional
     public UserResponse updateUserStatus(Long id, boolean enabled) {
         logger.debug("Updating enabled status to {} for user ID: {}", enabled, id);
@@ -173,6 +181,7 @@ public class UserService {
         return mapToUserResponse(user);
     }
 
+    @Override
     @Transactional
     public void deleteUser(Long id) {
         logger.debug("Starting deletion process for user with ID: {}", id);

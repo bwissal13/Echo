@@ -62,8 +62,9 @@ public class RefreshTokenService {
         // Create HTTP-only cookie
         Cookie refreshTokenCookie = new Cookie(refreshTokenCookieName, tokenValue);
         refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setSecure(true); // for HTTPS
+        refreshTokenCookie.setSecure(false); // Set to false for localhost testing
         refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setDomain("localhost");
         refreshTokenCookie.setMaxAge((int) (refreshTokenDurationMs / 1000));
         
         // Add cookie to response
@@ -113,9 +114,11 @@ public class RefreshTokenService {
     }
 
     public RefreshToken validateRefreshToken(String tokenValue) {
-        // Find token in database
-        return refreshTokenRepository.findByToken(tokenValue)
+        // Find token in database by hashed value
+        return refreshTokenRepository.findAll().stream()
+                .filter(token -> passwordEncoder.matches(tokenValue, token.getToken()))
                 .filter(RefreshToken::isValid)
+                .findFirst()
                 .orElseThrow(() -> new CustomException("Invalid refresh token"));
     }
 

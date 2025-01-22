@@ -105,8 +105,15 @@ class AuthenticationServiceTest {
 
         assertNotNull(response);
         assertEquals("jwtToken", response.getAccessToken());
-        assertTrue(response.isSuccess());
-        assertTrue(response.getMessage().contains("Please check your email for OTP verification"));
+        assertNotNull(response.getUser());
+        assertEquals(user.getId(), response.getUser().getId());
+        assertEquals(user.getFirstname(), response.getUser().getFirstname());
+        assertEquals(user.getLastname(), response.getUser().getLastname());
+        assertEquals(user.getEmail(), response.getUser().getEmail());
+        assertEquals(user.getBio(), response.getUser().getBio());
+        assertEquals(user.getRole(), response.getUser().getRole());
+        assertEquals(user.isEnabled(), response.getUser().isEnabled());
+        assertEquals(user.isEmailVerified(), response.getUser().isEmailVerified());
 
         verify(userRepository).existsByEmail(registerRequest.getEmail());
         verify(passwordEncoder).encode(registerRequest.getPassword());
@@ -138,8 +145,15 @@ class AuthenticationServiceTest {
 
         assertNotNull(response);
         assertEquals("jwtToken", response.getAccessToken());
-        assertTrue(response.isSuccess());
-        assertEquals("Login successful", response.getMessage());
+        assertNotNull(response.getUser());
+        assertEquals(user.getId(), response.getUser().getId());
+        assertEquals(user.getFirstname(), response.getUser().getFirstname());
+        assertEquals(user.getLastname(), response.getUser().getLastname());
+        assertEquals(user.getEmail(), response.getUser().getEmail());
+        assertEquals(user.getBio(), response.getUser().getBio());
+        assertEquals(user.getRole(), response.getUser().getRole());
+        assertEquals(user.isEnabled(), response.getUser().isEnabled());
+        assertEquals(user.isEmailVerified(), response.getUser().isEmailVerified());
 
         verify(authenticationManager).authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword())

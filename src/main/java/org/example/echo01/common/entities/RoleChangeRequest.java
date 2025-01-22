@@ -2,15 +2,17 @@ package org.example.echo01.common.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.example.echo01.auth.entities.User;
 import org.example.echo01.auth.enums.Role;
 
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Table(name = "role_change_requests")
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 public class RoleChangeRequest extends BaseEntity {
     
