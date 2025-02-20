@@ -6,6 +6,16 @@
 
     <changeSet id="0009-1" author="bwissal">
         <!-- Add audit columns to refresh_tokens -->
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <not>
+                    <columnExists tableName="refresh_tokens" columnName="modified_by"/>
+                </not>
+                <not>
+                    <columnExists tableName="refresh_tokens" columnName="modified_at"/>
+                </not>
+            </and>
+        </preConditions>
         <addColumn tableName="refresh_tokens">
             <column name="modified_by" type="VARCHAR(255)">
                 <constraints nullable="true"/>
