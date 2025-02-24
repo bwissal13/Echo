@@ -9,7 +9,7 @@ import org.example.echo01.common.repositories.RoleChangeRequestRepository;
 import org.example.echo01.auth.repositories.UserRepository;
 import org.example.echo01.common.exceptions.CustomException;
 import org.example.echo01.common.services.IRoleService;
-import org.example.echo01.common.mapper.RoleChangeRequestMapper;
+import org.example.echo01.common.mappers.RoleChangeRequestMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

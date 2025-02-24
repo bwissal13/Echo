@@ -8,7 +8,7 @@ import org.example.echo01.auth.services.UserService;
 import org.example.echo01.common.dto.request.CreateNotificationRequest;
 import org.example.echo01.common.dto.response.NotificationResponse;
 import org.example.echo01.common.entities.Notification;
-import org.example.echo01.common.mapper.NotificationMapper;
+import org.example.echo01.common.mappers.NotificationMapper;
 import org.example.echo01.common.repositories.NotificationRepository;
 import org.example.echo01.common.services.INotificationService;
 import org.springframework.data.domain.Page;
