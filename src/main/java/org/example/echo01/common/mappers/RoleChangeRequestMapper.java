@@ -1,4 +1,4 @@
-package org.example.echo01.common.mapper;
+package org.example.echo01.common.mappers;
 
 import org.example.echo01.common.dto.response.RoleChangeRequestResponse;
 import org.mapstruct.Mapper;
