@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="0013-1" author="system">
+        <!-- Add notification preferences to books table -->
+        <addColumn tableName="books">
+            <column name="notify_on_new_chapter" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notify_on_chapter_update" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notify_on_new_comment" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <modifyDataType tableName="books" columnName="description" newDataType="text"/>
+    </changeSet>
+
+    <changeSet id="0013-2" author="system">
+        <!-- Add chapter order and modify content type -->
+        <addColumn tableName="chapters">
+            <column name="chapter_order" type="int">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <modifyDataType tableName="chapters" columnName="content" newDataType="text"/>
+    </changeSet>
+
+    <changeSet id="0013-3" author="system">
+        <!-- Create chapter_reactions table -->
+        <createTable tableName="chapter_reactions">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="type" type="varchar(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="chapter_id" type="bigint">
+                <constraints nullable="false"
+                           foreignKeyName="fk_reaction_chapter"
+                           references="chapters(id)"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"
+                           foreignKeyName="fk_reaction_user"
+                           references="users(id)"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="chapter_reactions"
+                           columnNames="chapter_id,user_id"
+                           constraintName="uk_chapter_user_reaction"/>
+    </changeSet>
+
+    <changeSet id="0013-4" author="system">
+        <!-- Create chapter_comments table -->
+        <createTable tableName="chapter_comments">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="content" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="chapter_id" type="bigint">
+                <constraints nullable="false"
+                           foreignKeyName="fk_comment_chapter"
+                           references="chapters(id)"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"
+                           foreignKeyName="fk_comment_user"
+                           references="users(id)"/>
+            </column>
+            <column name="parent_comment_id" type="bigint">
+                <constraints foreignKeyName="fk_comment_parent"
+                           references="chapter_comments(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="0013-5" author="system">
+        <!-- Create book_subscribers table -->
+        <createTable tableName="book_subscribers">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="book_id" type="bigint">
+                <constraints nullable="false"
+                           foreignKeyName="fk_book_subscriber_book"
+                           references="books(id)"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"
+                           foreignKeyName="fk_book_subscriber_user"
+                           references="users(id)"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="book_subscribers"
+                      columnNames="book_id,user_id"
+                      constraintName="uk_book_subscribers"/>
+    </changeSet>
+
+    <changeSet id="0013-6" author="system">
+        <!-- Create chapter_subscribers table -->
+        <createTable tableName="chapter_subscribers">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="chapter_id" type="bigint">
+                <constraints nullable="false"
+                           foreignKeyName="fk_chapter_subscriber_chapter"
+                           references="chapters(id)"/>
+            </column>
+            <column name="user_id" type="bigint">
+                <constraints nullable="false"
+                           foreignKeyName="fk_chapter_subscriber_user"
+                           references="users(id)"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="chapter_subscribers"
+                      columnNames="chapter_id,user_id"
+                      constraintName="uk_chapter_subscribers"/>
+    </changeSet>
+
+</databaseChangeLog> 

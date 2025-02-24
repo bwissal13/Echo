@@ -16,5 +16,9 @@
     <include file="db/changelog/changes/0009-standardize-audit-columns.xml"/>
     <include file="db/changelog/changes/0011-add-updated-at-to-role-change-requests.xml"/>
     <include file="db/changelog/changes/0012-add-modified-columns.xml"/>
+    <include file="db/changelog/changes/0013-update-book-chapter-entities.xml"/>
+    <include file="db/changelog/changes/0014-add-audit-columns.xml"/>
+    <include file="db/changelog/changes/0015-add-soft-delete.xml"/>
+    <include file="db/changelog/changes/0016-add-user-subscribers.xml"/>
 
 </databaseChangeLog> 

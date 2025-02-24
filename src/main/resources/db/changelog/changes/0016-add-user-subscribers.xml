@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                          http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="0016-1" author="system">
+        <!-- Create user_subscribers table -->
+        <createTable tableName="user_subscribers">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="target_user_id" type="bigint">
+                <constraints nullable="false"
+                           foreignKeyName="fk_user_subscriber_target"
+                           references="users(id)"/>
+            </column>
+            <column name="subscriber_id" type="bigint">
+                <constraints nullable="false"
+                           foreignKeyName="fk_user_subscriber_subscriber"
+                           references="users(id)"/>
+            </column>
+            <column name="notify_on_new_book" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_by" type="varchar(255)"/>
+            <column name="modified_by" type="varchar(255)"/>
+        </createTable>
+
+        <addUniqueConstraint 
+            tableName="user_subscribers"
+            columnNames="target_user_id,subscriber_id"
+            constraintName="uk_user_subscribers"/>
+    </changeSet>
+
+</databaseChangeLog> 
