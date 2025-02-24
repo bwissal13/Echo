@@ -1,318 +1,864 @@
 {
-	"info": {
-		"_postman_id": "e5c2e8a0-1b1a-4b5e-8b0a-9b0a1b1a1b1a",
-		"name": "Echo01 API",
-		"description": "API documentation for Echo01 application",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "Authentication",
-			"description": "Authentication related endpoints",
-			"item": [
-				{
-					"name": "Register",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"Password123!\",\n    \"bio\": \"Software Developer\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/v1/auth/register",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "auth", "register"]
-						},
-						"description": "Register a new user"
-					}
-				},
-				{
-					"name": "Verify OTP",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"code\": \"123456\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/v1/auth/verify-otp",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "auth", "verify-otp"]
-						},
-						"description": "Verify OTP code sent during registration"
-					}
-				},
-				{
-					"name": "Resend OTP",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"john.doe@example.com\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/v1/auth/resend-otp",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "auth", "resend-otp"]
-						},
-						"description": "Resend OTP code to user's email"
-					}
-				},
-				{
-					"name": "Login",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"email\": \"john.doe@example.com\",\n    \"password\": \"Password123!\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/v1/auth/login",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "auth", "login"]
-						},
-						"description": "Login with email and password"
-					}
-				},
-				{
-					"name": "Refresh Token",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/auth/refresh-token",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "auth", "refresh-token"]
-						},
-						"description": "Refresh access token using refresh token cookie"
-					}
-				},
-				{
-					"name": "Logout",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/auth/logout",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "auth", "logout"]
-						},
-						"description": "Logout and invalidate tokens"
-					}
-				}
-			]
-		},
-		{
-			"name": "Users",
-			"description": "User management endpoints",
-			"item": [
-				{
-					"name": "Get Current User Profile",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/users/me",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "users", "me"]
-						},
-						"description": "Get current user's profile"
-					}
-				},
-				{
-					"name": "Update Current User Profile",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"firstname\": \"Updated John\",\n    \"lastname\": \"Updated Doe\",\n    \"bio\": \"Senior Software Developer\",\n    \"profilePicture\": \"https://example.com/profile.jpg\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/v1/users/me",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "users", "me"]
-						},
-						"description": "Update current user's profile"
-					}
-				},
-				{
-					"name": "Get User By ID",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/users/1",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "users", "1"]
-						},
-						"description": "Get user by ID (Admin only)"
-					}
-				},
-				{
-					"name": "Get All Users",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/users?page=0&size=10&search=john",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "users"],
-							"query": [
-								{
-									"key": "page",
-									"value": "0"
-								},
-								{
-									"key": "size",
-									"value": "10"
-								},
-								{
-									"key": "search",
-									"value": "john"
-								}
-							]
-						},
-						"description": "Get all users with pagination and search (Admin only)"
-					}
-				},
-				{
-					"name": "Update User Role",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/users/1/role?role=ADMIN",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "users", "1", "role"],
-							"query": [
-								{
-									"key": "role",
-									"value": "ADMIN"
-								}
-							]
-						},
-						"description": "Update user's role (Admin only)"
-					}
-				},
-				{
-					"name": "Update User Status",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/users/1/status?enabled=false",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "users", "1", "status"],
-							"query": [
-								{
-									"key": "enabled",
-									"value": "false"
-								}
-							]
-						},
-						"description": "Update user's enabled status (Admin only)"
-					}
-				},
-				{
-					"name": "Delete User",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/users/1",
-							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "users", "1"]
-						},
-						"description": "Delete user (Admin only)"
-					}
-				}
-			]
-		}
-	],
-	"variable": [
-		{
-			"key": "base_url",
-			"value": "http://localhost:8080",
-			"type": "string"
-		},
-		{
-			"key": "access_token",
-			"value": "your_access_token_here",
-			"type": "string"
-		}
-	]
+    "info": {
+        "_postman_id": "your-collection-id",
+        "name": "Echo01 API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Register",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\",\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/auth/register",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "auth", "register"]
+                        }
+                    }
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "var jsonData = JSON.parse(responseBody);",
+                                    "pm.environment.set(\"token\", jsonData.token);",
+                                    "pm.environment.set(\"refreshToken\", jsonData.refreshToken);"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/auth/login",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "auth", "login"]
+                        }
+                    }
+                },
+                {
+                    "name": "Refresh Token",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"refreshToken\": \"{{refreshToken}}\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/auth/refresh",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "auth", "refresh"]
+                        }
+                    }
+                },
+                {
+                    "name": "Verify Email",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"user@example.com\",\n    \"otp\": \"123456\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/auth/verify-email",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "auth", "verify-email"]
+                        }
+                    }
+                },
+                {
+                    "name": "Resend OTP",
+                    "request": {
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"user@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/auth/resend-otp",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "auth", "resend-otp"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "User Management",
+            "item": [
+                {
+                    "name": "Get Current Profile",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/users/me",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "users", "me"]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Profile",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "PUT",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"firstname\": \"Updated First Name\",\n    \"lastname\": \"Updated Last Name\",\n    \"bio\": \"Updated bio\",\n    \"profilePicture\": \"https://example.com/profile.jpg\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/users/me",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "users", "me"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get User By ID (Admin)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/users/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "users", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Users (Admin)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/users?page=0&size=10&search=john",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "users"],
+                            "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "10"}, {"key": "search", "value": "john"}]
+                        }
+                    }
+                },
+                {
+                    "name": "Update User Role (Admin)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "PUT",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/users/1/role?role=ADMIN",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "users", "1", "role"],
+                            "query": [{"key": "role", "value": "ADMIN"}]
+                        }
+                    }
+                },
+                {
+                    "name": "Update User Status (Admin)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "PUT",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/users/1/status?enabled=true",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "users", "1", "status"],
+                            "query": [{"key": "enabled", "value": "true"}]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete User (Admin)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/users/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "users", "1"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Books",
+            "item": [
+                {
+                    "name": "Create Book",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"My First Book\",\n    \"description\": \"An amazing story\",\n    \"genre\": \"FICTION\",\n    \"isPublic\": true,\n    \"notifyOnNewChapter\": true,\n    \"notifyOnChapterUpdate\": true,\n    \"notifyOnNewComment\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/books",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "books"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Public Books",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/books?page=0&size=10",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "books"],
+                            "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "10"}]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Books by Genre",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/books/genre/FICTION?page=0&size=10",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "books", "genre", "FICTION"],
+                            "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "10"}]
+                        }
+                    }
+                },
+                {
+                    "name": "Search Books",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/books?search=fantasy&page=0&size=10",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "books"],
+                            "query": [{"key": "search", "value": "fantasy"}, {"key": "page", "value": "0"}, {"key": "size", "value": "10"}]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Book",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/books/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "books", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get My Books",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/books/me?page=0&size=10",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "books", "me"],
+                            "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "10"}]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Book",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "PUT",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Updated Book Title\",\n    \"description\": \"Updated description\",\n    \"genre\": \"FICTION\",\n    \"isPublic\": true,\n    \"notifyOnNewChapter\": true,\n    \"notifyOnChapterUpdate\": true,\n    \"notifyOnNewComment\": true\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/books/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "books", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Increment Book Views",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/books/1/views",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "books", "1", "views"]
+                        }
+                    }
+                },
+                {
+                    "name": "Make Book Public",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "PUT",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/books/1/visibility/public",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "books", "1", "visibility", "public"]
+                        }
+                    }
+                },
+                {
+                    "name": "Make Book Private",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "PUT",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/books/1/visibility/private",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "books", "1", "visibility", "private"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Chapters",
+            "item": [
+                {
+                    "name": "Create Chapter",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"title\": \"Chapter 1\",\n    \"content\": \"Chapter content goes here\",\n    \"bookId\": 1,\n    \"orderNumber\": 1\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/chapters",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "chapters"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Chapter by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/chapters/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "chapters", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Chapters by Book",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/chapters/book/1?page=0&size=10",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "chapters", "book", "1"],
+                            "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "10"}]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Comments",
+            "item": [
+                {
+                    "name": "Add Comment",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"content\": \"Great chapter!\",\n    \"chapterId\": 1,\n    \"parentCommentId\": null\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/comments",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "comments"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Chapter Comments",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/comments/chapter/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "comments", "chapter", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Root Comments",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/comments/chapter/1/root",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "comments", "chapter", "1", "root"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Comment Replies",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/comments/1/replies",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "comments", "1", "replies"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Reactions",
+            "item": [
+                {
+                    "name": "Add Reaction",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"chapterId\": 1,\n    \"type\": \"LIKE\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/reactions",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "reactions"]
+                        }
+                    }
+                },
+                {
+                    "name": "Remove Reaction",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/reactions/chapter/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "reactions", "chapter", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Reaction Counts",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/reactions/chapter/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "reactions", "chapter", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Chapter Reactions with Users",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/reactions/chapter/1/users",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "reactions", "chapter", "1", "users"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Subscriptions",
+            "item": [
+                {
+                    "name": "Subscribe to Book",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"bookId\": 1\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/subscriptions/books",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "subscriptions", "books"]
+                        }
+                    }
+                },
+                {
+                    "name": "Subscribe to Chapter",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"chapterId\": 1\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/subscriptions/chapters",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "subscriptions", "chapters"]
+                        }
+                    }
+                },
+                {
+                    "name": "Subscribe to User",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/subscriptions/users/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "subscriptions", "users", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Unsubscribe from User",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "DELETE",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/subscriptions/users/1",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "subscriptions", "users", "1"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get My User Subscriptions",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/subscriptions/users/me/subscriptions?page=0&size=10",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "subscriptions", "users", "me", "subscriptions"],
+                            "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "10"}]
+                        }
+                    }
+                },
+                {
+                    "name": "Get My User Subscribers",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/subscriptions/users/me/subscribers?page=0&size=10",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "subscriptions", "users", "me", "subscribers"],
+                            "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "10"}]
+                        }
+                    }
+                },
+                {
+                    "name": "Check User Subscription Status",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/subscriptions/users/1/status",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "subscriptions", "users", "1", "status"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Trash",
+            "item": [
+                {
+                    "name": "Get Deleted Books",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/trash/books?page=0&size=10",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "trash", "books"],
+                            "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "10"}]
+                        }
+                    }
+                },
+                {
+                    "name": "Restore Book",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "PUT",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/trash/books/1/restore",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "trash", "books", "1", "restore"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Deleted Chapters",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/trash/chapters?page=0&size=10",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "trash", "chapters"],
+                            "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "10"}]
+                        }
+                    }
+                },
+                {
+                    "name": "Restore Chapter",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "PUT",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/chapters/1/restore",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "chapters", "1", "restore"]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Role Management",
+            "item": [
+                {
+                    "name": "Request Role Change",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "POST",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"role\": \"AUTHOR\",\n    \"reason\": \"I want to publish my books\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/role-requests",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "role-requests"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get My Role Requests",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/role-requests/me",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "role-requests", "me"]
+                        }
+                    }
+                },
+                {
+                    "name": "Get All Role Requests (Admin)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/role-requests?page=0&size=10",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "role-requests"],
+                            "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "10"}]
+                        }
+                    }
+                },
+                {
+                    "name": "Approve Role Request (Admin)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "PUT",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/role-requests/1/approve",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "role-requests", "1", "approve"]
+                        }
+                    }
+                },
+                {
+                    "name": "Reject Role Request (Admin)",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [{"key": "token", "value": "{{token}}", "type": "string"}]
+                        },
+                        "method": "PUT",
+                        "header": [{"key": "Content-Type", "value": "application/json"}],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"reason\": \"Insufficient information provided\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{baseUrl}}/api/v1/role-requests/1/reject",
+                            "host": ["{{baseUrl}}"],
+                            "path": ["api", "v1", "role-requests", "1", "reject"]
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [""]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [""]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:8080",
+            "type": "string"
+        }
+    ]
 } 
