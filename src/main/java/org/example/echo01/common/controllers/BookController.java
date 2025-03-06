@@ -3,23 +3,30 @@ package org.example.echo01.common.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.echo01.auth.entities.User;
+import org.example.echo01.common.dto.request.BookCommentRequest;
 import org.example.echo01.common.dto.request.CreateBookRequest;
 import org.example.echo01.common.dto.request.UpdateBookRequest;
+import org.example.echo01.common.dto.response.BookCommentResponse;
 import org.example.echo01.common.dto.response.BookResponse;
 import org.example.echo01.common.enums.Genre;
+import org.example.echo01.common.services.IBookCommentService;
 import org.example.echo01.common.services.IBookService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/books")
 @RequiredArgsConstructor
 public class BookController {
     private final IBookService bookService;
+    private final IBookCommentService bookCommentService;
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
@@ -104,5 +111,38 @@ public class BookController {
             @AuthenticationPrincipal User currentUser
     ) {
         return ResponseEntity.ok(bookService.makeBookPrivate(id));
+    }
+
+    @PostMapping("/{bookId}/comments")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<BookCommentResponse> addComment(
+            @PathVariable Long bookId,
+            @Valid @RequestBody BookCommentRequest request,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        request.setBookId(bookId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(bookCommentService.addComment(request, currentUser));
+    }
+
+    @GetMapping("/{bookId}/comments")
+    public ResponseEntity<List<BookCommentResponse>> getBookComments(
+            @PathVariable Long bookId
+    ) {
+        return ResponseEntity.ok(bookCommentService.getBookComments(bookId));
+    }
+
+    @GetMapping("/{bookId}/comments/root")
+    public ResponseEntity<List<BookCommentResponse>> getRootComments(
+            @PathVariable Long bookId
+    ) {
+        return ResponseEntity.ok(bookCommentService.getRootComments(bookId));
+    }
+
+    @GetMapping("/comments/{commentId}/replies")
+    public ResponseEntity<List<BookCommentResponse>> getCommentReplies(
+            @PathVariable Long commentId
+    ) {
+        return ResponseEntity.ok(bookCommentService.getCommentReplies(commentId));
     }
 } 

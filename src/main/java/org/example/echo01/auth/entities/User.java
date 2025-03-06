@@ -3,6 +3,7 @@ package org.example.echo01.auth.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.example.echo01.auth.enums.Role;
+import org.example.echo01.common.entities.BookComment;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,6 +47,10 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user")
     private List<Token> tokens;
+
+    @OneToMany(mappedBy = "user")
+    @Builder.Default
+    private List<BookComment> bookComments = List.of();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

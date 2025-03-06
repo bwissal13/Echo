@@ -21,5 +21,6 @@
     <include file="db/changelog/changes/0015-add-soft-delete.xml"/>
     <include file="db/changelog/changes/0016-add-user-subscribers.xml"/>
     <include file="db/changelog/changes/0010-add-bookmark-tables.xml"/>
+    <include file="changes/0012-create-book-comments-table.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog> 
