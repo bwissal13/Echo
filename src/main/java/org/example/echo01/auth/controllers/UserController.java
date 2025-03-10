@@ -4,14 +4,19 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.echo01.auth.dto.request.UpdateProfileRequest;
 import org.example.echo01.auth.dto.response.UserResponse;
+import org.example.echo01.auth.dto.response.AuthorWithBooksResponse;
 import org.example.echo01.auth.enums.Role;
 import org.example.echo01.auth.services.IUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -67,5 +72,35 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/authors")
+    public ResponseEntity<Page<AuthorWithBooksResponse>> getAuthors(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "firstname") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+        
+        validateSortField(sortBy);
+        validateSortDirection(direction);
+        
+        Sort sort = Sort.by(direction.equalsIgnoreCase("desc") ? 
+                Sort.Direction.DESC : Sort.Direction.ASC, sortBy.toLowerCase());
+                
+        return ResponseEntity.ok(userService.getAuthors(page, size, search, sort));
+    }
+
+    private void validateSortField(String sortBy) {
+        Set<String> validFields = Set.of("firstname", "lastname", "email", "id", "createdat", "updatedat");
+        if (!validFields.contains(sortBy.toLowerCase())) {
+            throw new IllegalArgumentException("Invalid sort field: " + sortBy);
+        }
+    }
+
+    private void validateSortDirection(String direction) {
+        if (!direction.equalsIgnoreCase("asc") && !direction.equalsIgnoreCase("desc")) {
+            throw new IllegalArgumentException("Invalid sort direction: " + direction);
+        }
     }
 } 

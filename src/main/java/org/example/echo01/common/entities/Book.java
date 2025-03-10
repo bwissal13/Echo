@@ -80,6 +80,12 @@ public class Book extends BaseEntity {
     @Column(name = "permanent_delete_at")
     private LocalDateTime permanentDeleteAt;
 
+    @Column(name = "published_at")
+    private LocalDateTime publishedAt;
+    
+    @Column(name = "cover_image")
+    private String coverImage;
+
     @PreRemove
     public void preRemove() {
         this.deleted = true;

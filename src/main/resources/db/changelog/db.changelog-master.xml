@@ -22,5 +22,6 @@
     <include file="db/changelog/changes/0016-add-user-subscribers.xml"/>
     <include file="db/changelog/changes/0010-add-bookmark-tables.xml"/>
     <include file="changes/0012-create-book-comments-table.xml" relativeToChangelogFile="true"/>
+    <include file="changes/0013-add-book-cover-and-published-date.xml" relativeToChangelogFile="true"/>
 
 </databaseChangeLog> 

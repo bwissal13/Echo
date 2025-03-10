@@ -14,10 +14,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.example.echo01.common.repositories.BookRepository;
+import org.example.echo01.common.mappers.BookMapper;
+import org.example.echo01.auth.dto.response.AuthorWithBooksResponse;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @RequiredArgsConstructor
@@ -25,10 +30,13 @@ public class UserServiceImpl implements IUserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private static final int MAX_PAGE_SIZE = 50;
+    private static final int MAX_PREVIEW_BOOKS = 5;
 
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final OTPRepository otpRepository;
+    private final BookRepository bookRepository;
+    private final BookMapper bookMapper;
 
     @Override
     public UserResponse getCurrentUserProfile() {
@@ -209,5 +217,37 @@ public class UserServiceImpl implements IUserService {
             logger.error("Error during user deletion process for ID {}: {}", id, e.getMessage(), e);
             throw new CustomException("Failed to delete user: " + e.getMessage());
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<AuthorWithBooksResponse> getAuthors(int page, int size, String search, Sort sort) {
+        PageRequest pageRequest = PageRequest.of(page, size, sort);
+        Page<User> authors;
+        
+        if (StringUtils.hasText(search)) {
+            authors = userRepository.findAuthorsWithSearch(search.trim(), pageRequest);
+        } else {
+            authors = userRepository.findAuthors(pageRequest);
+        }
+        
+        return authors.map(author -> {
+            var books = bookRepository.findTopNByAuthorIdOrderByPublishedAtDesc(
+                    author.getId(), 
+                    PageRequest.of(0, MAX_PREVIEW_BOOKS))
+                    .stream()
+                    .map(bookMapper::toPreviewResponse)
+                    .collect(toList());
+                    
+            return AuthorWithBooksResponse.builder()
+                    .id(author.getId())
+                    .firstname(author.getFirstname())
+                    .lastname(author.getLastname())
+                    .profilePicture(author.getProfilePicture())
+                    .totalBooks(bookRepository.countByAuthorId(author.getId()))
+                    .totalFollowers(0) // TODO: Implement follower count
+                    .books(books)
+                    .build();
+        });
     }
 } 

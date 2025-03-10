@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="0013" author="wissal">
+        <addColumn tableName="books">
+            <column name="published_at" type="TIMESTAMP">
+                <constraints nullable="true"/>
+            </column>
+            <column name="cover_image" type="VARCHAR(1000)">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+        
+        <!-- Set default published_at for existing books -->
+        <sql>
+            UPDATE books SET published_at = created_at WHERE published_at IS NULL;
+        </sql>
+    </changeSet>
+</databaseChangeLog> 

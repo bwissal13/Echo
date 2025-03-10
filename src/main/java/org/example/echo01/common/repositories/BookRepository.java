@@ -80,4 +80,12 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @EntityGraph(attributePaths = {"chapters"})
     @Override
     Optional<Book> findById(Long id);
+
+    @Query("SELECT b FROM Book b WHERE b.author.id = :authorId AND b.isPublic = true " +
+           "ORDER BY b.publishedAt DESC")
+    List<Book> findTopNByAuthorIdOrderByPublishedAtDesc(
+            @Param("authorId") Long authorId, 
+            Pageable pageable);
+    
+    int countByAuthorId(Long authorId);
 } 

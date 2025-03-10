@@ -5,6 +5,7 @@ import org.example.echo01.common.dto.request.CreateBookRequest;
 import org.example.echo01.common.dto.request.UpdateBookRequest;
 import org.example.echo01.common.dto.response.BookResponse;
 import org.example.echo01.common.entities.Book;
+import org.example.echo01.common.dto.response.BookPreviewResponse;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = {ChapterMapper.class})
@@ -36,4 +37,8 @@ public interface BookMapper {
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "permanentDeleteAt", ignore = true)
     void partialUpdate(UpdateBookRequest request, @MappingTarget Book book);
+
+    @Mapping(target = "publishedAt", source = "publishedAt")
+    @Mapping(target = "coverImage", source = "coverImage")
+    BookPreviewResponse toPreviewResponse(Book book);
 } 
