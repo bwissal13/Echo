@@ -37,4 +37,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
             OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')))
             """)
     Page<User> findAuthorsWithSearch(@Param("search") String search, Pageable pageable);
+
+    @Query("SELECT u.followers FROM User u WHERE u.id = :authorId")
+    Page<User> findFollowersByAuthorId(@Param("authorId") Long authorId, Pageable pageable);
+
+    @Query("SELECT u.following FROM User u WHERE u.id = :userId")
+    Page<User> findFollowingByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    @Query("SELECT COUNT(u) > 0 FROM User u JOIN u.followers f " +
+           "WHERE f.id = :followerId AND u.id = :followedId")
+    boolean existsByFollowerIdAndFollowedId(
+            @Param("followerId") Long followerId, 
+            @Param("followedId") Long followedId);
 } 

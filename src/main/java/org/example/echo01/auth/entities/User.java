@@ -12,7 +12,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -20,10 +22,12 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
-@EqualsAndHashCode(callSuper = false)
+@ToString(exclude = {"tokens", "bookComments", "books", "followers", "following"})
+@EqualsAndHashCode(callSuper = false, onlyExplicitlyIncluded = true)
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     private String firstname;
@@ -48,14 +52,29 @@ public class User implements UserDetails {
     private LocalDateTime emailVerificationTokenExpiry;
 
     @OneToMany(mappedBy = "user")
-    private List<Token> tokens;
+    @Builder.Default
+    private List<Token> tokens = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
     @Builder.Default
-    private List<BookComment> bookComments = List.of();
+    private List<BookComment> bookComments = new ArrayList<>();
 
     @OneToMany(mappedBy = "author")
+    @Builder.Default
     private List<Book> books = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_followers",
+        joinColumns = @JoinColumn(name = "followed_id"),
+        inverseJoinColumns = @JoinColumn(name = "follower_id")
+    )
+    @Builder.Default
+    private Set<User> followers = new HashSet<>();
+
+    @ManyToMany(mappedBy = "followers", fetch = FetchType.LAZY)
+    @Builder.Default
+    private Set<User> following = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

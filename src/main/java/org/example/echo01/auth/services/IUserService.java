@@ -18,4 +18,9 @@ public interface IUserService {
     UserResponse updateUserStatus(Long id, boolean enabled);
     void deleteUser(Long id);
     Page<AuthorWithBooksResponse> getAuthors(int page, int size, String search, Sort sort);
+    void followAuthor(Long authorId);
+    void unfollowAuthor(Long authorId);
+    Page<UserResponse> getAuthorFollowers(Long authorId, int page, int size);
+    Page<UserResponse> getFollowedAuthors(int page, int size);
+    boolean isFollowing(Long authorId);
 } 

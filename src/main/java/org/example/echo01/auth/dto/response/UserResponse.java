@@ -20,4 +20,7 @@ public class UserResponse {
     private Role role;
     private boolean enabled;
     private boolean emailVerified;
+    private int followersCount;
+    private int followingCount;
+    private boolean isFollowing;
 } 

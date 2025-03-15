@@ -91,6 +91,41 @@ public class UserController {
         return ResponseEntity.ok(userService.getAuthors(page, size, search, sort));
     }
 
+    @PostMapping("/{authorId}/follow")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> followAuthor(@PathVariable Long authorId) {
+        userService.followAuthor(authorId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{authorId}/follow")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> unfollowAuthor(@PathVariable Long authorId) {
+        userService.unfollowAuthor(authorId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{authorId}/followers")
+    public ResponseEntity<Page<UserResponse>> getAuthorFollowers(
+            @PathVariable Long authorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(userService.getAuthorFollowers(authorId, page, size));
+    }
+
+    @GetMapping("/me/following")
+    public ResponseEntity<Page<UserResponse>> getFollowedAuthors(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(userService.getFollowedAuthors(page, size));
+    }
+
+    @GetMapping("/{authorId}/following-status")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Boolean> getFollowingStatus(@PathVariable Long authorId) {
+        return ResponseEntity.ok(userService.isFollowing(authorId));
+    }
+
     private void validateSortField(String sortBy) {
         Set<String> validFields = Set.of("firstname", "lastname", "email", "id", "createdat", "updatedat");
         if (!validFields.contains(sortBy.toLowerCase())) {

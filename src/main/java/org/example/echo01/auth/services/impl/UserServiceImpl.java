@@ -23,6 +23,7 @@ import org.example.echo01.common.repositories.BookRepository;
 import org.example.echo01.common.mappers.BookMapper;
 import org.example.echo01.auth.dto.response.AuthorWithBooksResponse;
 import static java.util.stream.Collectors.toList;
+import org.example.echo01.auth.mappers.UserMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +38,7 @@ public class UserServiceImpl implements IUserService {
     private final OTPRepository otpRepository;
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
+    private final UserMapper userMapper;
 
     @Override
     public UserResponse getCurrentUserProfile() {
@@ -249,5 +251,70 @@ public class UserServiceImpl implements IUserService {
                     .books(books)
                     .build();
         });
+    }
+
+    @Override
+    @Transactional
+    public void followAuthor(Long authorId) {
+        User currentUser = getCurrentUser();
+        User author = userRepository.findById(authorId)
+                .orElseThrow(() -> new IllegalArgumentException("Author not found"));
+
+        if (currentUser.getId().equals(authorId)) {
+            throw new IllegalArgumentException("Cannot follow yourself");
+        }
+
+        if (currentUser.getFollowing().contains(author)) {
+            throw new IllegalArgumentException("Already following this author");
+        }
+
+        author.getFollowers().add(currentUser);
+        currentUser.getFollowing().add(author);
+        userRepository.save(currentUser);
+        userRepository.save(author);
+    }
+
+    @Override
+    @Transactional
+    public void unfollowAuthor(Long authorId) {
+        User currentUser = getCurrentUser();
+        User author = userRepository.findById(authorId)
+                .orElseThrow(() -> new IllegalArgumentException("Author not found"));
+
+        if (!currentUser.getFollowing().contains(author)) {
+            throw new IllegalArgumentException("Not following this author");
+        }
+
+        author.getFollowers().remove(currentUser);
+        currentUser.getFollowing().remove(author);
+        userRepository.save(currentUser);
+        userRepository.save(author);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UserResponse> getAuthorFollowers(Long authorId, int page, int size) {
+        User author = userRepository.findById(authorId)
+                .orElseThrow(() -> new IllegalArgumentException("Author not found"));
+
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<User> followers = userRepository.findFollowersByAuthorId(authorId, pageRequest);
+        return followers.map(userMapper::toResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<UserResponse> getFollowedAuthors(int page, int size) {
+        User currentUser = getCurrentUser();
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<User> following = userRepository.findFollowingByUserId(currentUser.getId(), pageRequest);
+        return following.map(userMapper::toResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isFollowing(Long authorId) {
+        User currentUser = getCurrentUser();
+        return userRepository.existsByFollowerIdAndFollowedId(currentUser.getId(), authorId);
     }
 } 

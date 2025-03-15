@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.24.xsd">
+
+    <changeSet id="0017" author="wissal">
+        <createTable tableName="user_followers">
+            <column name="followed_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="follower_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey tableName="user_followers" 
+                      columnNames="followed_id, follower_id"/>
+
+        <addForeignKeyConstraint baseTableName="user_followers"
+                                baseColumnNames="followed_id"
+                                constraintName="fk_user_followers_followed"
+                                referencedTableName="users"
+                                referencedColumnNames="id"
+                                onDelete="CASCADE"/>
+
+        <addForeignKeyConstraint baseTableName="user_followers"
+                                baseColumnNames="follower_id"
+                                constraintName="fk_user_followers_follower"
+                                referencedTableName="users"
+                                referencedColumnNames="id"
+                                onDelete="CASCADE"/>
+    </changeSet>
+</databaseChangeLog> 
