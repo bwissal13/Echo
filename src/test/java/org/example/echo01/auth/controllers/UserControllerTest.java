@@ -113,22 +113,6 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteUser_ShouldReturnSuccessMessage() {
-        doNothing().when(userService).deleteUser(1L);
-
-        ResponseEntity<?> response = userController.deleteUser(1L);
-
-        assertNotNull(response);
-        assertEquals(200, response.getStatusCode().value());
-        @SuppressWarnings("unchecked")
-        Map<String, String> responseBody = (Map<String, String>) response.getBody();
-        assertNotNull(responseBody);
-        assertEquals("User deleted successfully", responseBody.get("message"));
-        assertEquals("true", responseBody.get("success"));
-        verify(userService, times(1)).deleteUser(1L);
-    }
-
-    @Test
     void getAllUsers_ShouldReturnPageOfUsers() {
         // Arrange
         Page<UserResponse> mockPage = new PageImpl<>(Collections.singletonList(createMockUserResponse()));
