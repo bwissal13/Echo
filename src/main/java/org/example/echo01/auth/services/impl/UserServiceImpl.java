@@ -24,6 +24,9 @@ import org.example.echo01.common.mappers.BookMapper;
 import org.example.echo01.auth.dto.response.AuthorWithBooksResponse;
 import static java.util.stream.Collectors.toList;
 import org.example.echo01.auth.mappers.UserMapper;
+import org.example.echo01.auth.repositories.RefreshTokenRepository;
+import org.example.echo01.auth.entities.RefreshToken;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,7 @@ public class UserServiceImpl implements IUserService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
     private final UserMapper userMapper;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public UserResponse getCurrentUserProfile() {
@@ -209,6 +213,14 @@ public class UserServiceImpl implements IUserService {
             
             logger.debug("Deleting token records for user: {}", user.getEmail());
             tokenRepository.deleteAllByUser(user);
+            
+            // Delete refresh tokens for the user - using different approach
+            logger.debug("Deleting refresh token records for user: {}", user.getEmail());
+            // Find all refresh tokens for the user and delete them
+            List<RefreshToken> refreshTokens = refreshTokenRepository.findAllByUserAndUsedFalseAndRevokedFalse(user);
+            if (!refreshTokens.isEmpty()) {
+                refreshTokenRepository.deleteAll(refreshTokens);
+            }
             
             // Then delete the user
             logger.debug("Deleting user: {}", user.getEmail());
