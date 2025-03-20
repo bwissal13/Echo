@@ -11,6 +11,7 @@ import org.example.echo01.common.entities.Notification;
 import org.example.echo01.common.mappers.NotificationMapper;
 import org.example.echo01.common.repositories.NotificationRepository;
 import org.example.echo01.common.services.INotificationService;
+import org.example.echo01.common.exceptions.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,9 +40,9 @@ public class NotificationServiceImpl implements INotificationService {
 
     @Override
     public NotificationResponse getNotificationById(Long id) {
-        return notificationRepository.findById(id)
-                .map(notificationMapper::toResponse)
-                .orElseThrow(() -> new EntityNotFoundException("Notification not found with id: " + id));
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found with id: " + id));
+        return notificationMapper.toResponse(notification);
     }
 
     @Override
